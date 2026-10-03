@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle, Circle, CircleHalf, Clock, Sun, TrendUp, type Icon } from "@phosphor-icons/react";
+import { ListenButton } from "@/components/Voice";
 import { db, getCached, setCached } from "@/lib/db";
 import { isoDate, postJSON, profileForApi } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
@@ -171,7 +172,14 @@ export default function RolePage() {
       </div>
 
       <section className="space-y-6">
-        <h2 className="text-2xl sm:text-3xl font-semibold">{t("r.gap")}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-2xl sm:text-3xl font-semibold">{t("r.gap")}</h2>
+          {gap && (
+            <ListenButton
+              text={[role.title, role.summary, `${t("g.have")}: ${gap.have.join(", ")}.`, `${t("g.partial")}: ${gap.partial.join(", ")}.`, `${t("g.build")}: ${gap.build.join(", ")}.`, gap.encouragement].join(" ")}
+            />
+          )}
+        </div>
         {!gap && !gapError && (
           <div className="grid md:grid-cols-3 gap-4" aria-busy="true">
             {[0, 1, 2].map((i) => (

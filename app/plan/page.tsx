@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, ArrowUpRight, Briefcase, CalendarPlus, Check, Clock, Copy, Fire, Hammer, LinkedinLogo, MapPin, Printer, Sparkle, Trash } from "@phosphor-icons/react";
 import { RESOURCE_BY_ID } from "@/data/resources";
 import { celebrate, streak } from "@/lib/celebrate";
+import { ListenButton } from "@/components/Voice";
 import { db } from "@/lib/db";
 import { postJSON, profileForApi } from "@/lib/api";
 import { downloadIcs, weekStart } from "@/lib/ics";
@@ -193,6 +194,12 @@ function PlanView({ plan, plans, profile, tab, setTab, onSelect }: { plan: Plan;
               </ol>
             </div>
             <aside className="lg:col-span-4 space-y-6">
+              {(() => {
+                const pi = Math.max(0, plan.phases.findIndex((ph) => currentWeek >= ph.startWeek && currentWeek <= ph.endWeek));
+                const ph = plan.phases[pi];
+                const todo = plan.tasks.filter((x) => x.phaseIndex === pi && !x.done).map((x) => x.title);
+                return ph ? <ListenButton text={`${t("pl.towards", { role: plan.roleTitle })}. ${ph.name}: ${ph.goal}. ${todo.join(". ")}.`} /> : null;
+              })()}
               <section className="rounded-[22px] bg-brand-soft p-6 space-y-3 lg:sticky lg:top-24">
                 <h2 className="font-semibold flex items-center gap-2">
                   <Hammer size={20} className="text-brand" /> {t("pl.project")}

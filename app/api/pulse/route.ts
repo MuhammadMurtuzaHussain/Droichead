@@ -1,5 +1,6 @@
 import { FIXTURE_META, FIXTURES } from "@/data/demo";
 import { chatJSON, hasModel } from "@/lib/llm";
+import { fetchUnemployment } from "@/lib/cso";
 import { fetchNews } from "@/lib/news";
 import { LocaleIn, NewsOut, ProfileIn, RolesOut } from "@/lib/schemas";
 import { slugify } from "@/lib/slug";
@@ -53,7 +54,13 @@ Return JSON:
 }
 
 async function news(p: P, locale: z.infer<typeof LocaleIn>, signal: AbortSignal) {
-  const articles = await fetchNews(p.industry, 10);
+  const inIreland = /ireland|éire|eire|irlan/i.test(p.country);
+  const [articles, cso] = await Promise.all([fetchNews(p.industry, 10), inIreland ? fetchUnemployment() : Promise.resolve(null)]);
+  const out = await newsBody(p, locale, signal, articles, cso);
+  return { ...out, cso };
+}
+
+async function newsBody(p: P, locale: z.infer<typeof LocaleIn>, signal: AbortSignal, articles: Awaited<ReturnType<typeof fetchNews>>, cso?: Awaited<ReturnType<typeof fetchUnemployment>>) {
   const raw: NewsItem[] = articles.slice(0, 5).map((a) => ({ title: a.title, url: a.url, source: a.domain, date: a.date, soWhat: "" }));
   const fixture = demoFixture(p, locale);
   const fallback = (offline = true) => ({ news: raw, roleShifts: (fixture ?? FIXTURES.aoife).roleShifts, economy: (fixture ?? FIXTURES.aoife).economy, offline });
@@ -74,7 +81,7 @@ Return JSON:
 {
  "news": [{"i": <article index>, "title": "<headline, clear, translated>", "soWhat": "<max 20 words: what this means for this person, practical and calm>"}],
  "roleShifts": ["<exactly 3 short sentences on how THIS person's current role is changing because of AI>"],
- "economy": "<2 sentences on hiring and economic conditions for this industry in ${p.country}, honest and calm>"
+ "economy": "<2 sentences on hiring and economic conditions for this industry in ${p.country}, honest and calm>"${cso ? `\n Official data you may cite in "economy": CSO Ireland, ${cso.month}: unemployment ${cso.rate}% (previous month ${cso.prev}%), under-25s ${cso.youth}%.` : ""}
 }
 Pick the 4 most relevant articles for "news" ([] if none).`,
     });

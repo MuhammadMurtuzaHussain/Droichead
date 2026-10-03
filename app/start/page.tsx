@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -10,11 +10,13 @@ import {
   Buildings,
   Check,
   Factory,
+  FileArrowUp,
   ForkKnife,
   GraduationCap,
   Heartbeat,
   Laptop,
   Leaf,
+  LockSimple,
   Mountains,
   PaintBrush,
   Plant,
@@ -28,6 +30,8 @@ import {
   Truck,
   type Icon,
 } from "@phosphor-icons/react";
+import { MicButton } from "@/components/Voice";
+import { readCvFile } from "@/lib/cv";
 import { db } from "@/lib/db";
 import { useI18n } from "@/lib/i18n";
 import type { Level, Profile, WorkMode } from "@/lib/types";
@@ -76,6 +80,20 @@ export default function Survey() {
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [customSkill, setCustomSkill] = useState("");
+  const [cvState, setCvState] = useState<"idle" | "reading" | "done" | "error">("idle");
+  const cvInput = useRef<HTMLInputElement>(null);
+
+  async function onCv(file: File) {
+    setCvState("reading");
+    try {
+      const text = await readCvFile(file);
+      if (!text) throw new Error("empty");
+      setD((x) => ({ ...x, history: text }));
+      setCvState("done");
+    } catch {
+      setCvState("error");
+    }
+  }
 
   useEffect(() => {
     db.profile.get("me").then((p) => {
@@ -110,7 +128,10 @@ export default function Survey() {
       required: true,
       body: (
         <div className="space-y-6">
-          <input autoFocus aria-label={t("s.role")} className={bigInput} placeholder={t("s.role.ph")} value={d.role} onChange={(e) => set("role", e.target.value)} onKeyDown={(e) => e.key === "Enter" && d.role && next()} />
+          <div className="flex items-end gap-3">
+            <input autoFocus aria-label={t("s.role")} className={bigInput} placeholder={t("s.role.ph")} value={d.role} onChange={(e) => set("role", e.target.value)} onKeyDown={(e) => e.key === "Enter" && d.role && next()} />
+            <MicButton className="shrink-0 mb-2" onText={(txt) => set("role", txt.replace(/[.!?]$/, ""))} />
+          </div>
           <div className="flex flex-wrap gap-2">
             {ROLE_SUGGESTIONS.map((r) => (
               <button key={r} className="option rounded-full px-3.5 py-2 text-sm" aria-pressed={d.role === r} onClick={() => set("role", r)}>
@@ -159,7 +180,23 @@ export default function Survey() {
       key: "history",
       title: t("s.history"),
       sub: t("s.history.sub"),
-      body: <textarea aria-label={t("s.history")} className="field min-h-44 text-base leading-relaxed" placeholder={t("s.history.ph")} value={d.history} onChange={(e) => set("history", e.target.value)} />,
+      body: (
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" className="btn btn-quiet !py-2 !px-3.5 text-sm" onClick={() => cvInput.current?.click()} disabled={cvState === "reading"}>
+              <FileArrowUp size={16} /> {cvState === "reading" ? t("s.cv.reading") : t("s.cv.upload")}
+            </button>
+            <input ref={cvInput} type="file" accept="application/pdf,.pdf,text/plain,.txt" hidden onChange={(e) => e.target.files?.[0] && onCv(e.target.files[0])} />
+            <MicButton onText={(txt) => set("history", `${d.history ? d.history + " " : ""}${txt}`)} />
+            <span className="text-xs text-muted flex items-center gap-1">
+              <LockSimple size={12} /> {t("s.cv.private")}
+            </span>
+          </div>
+          {cvState === "done" && <p className="text-sm text-brand" role="status">{t("s.cv.done")}</p>}
+          {cvState === "error" && <p className="text-sm text-peat" role="alert">{t("s.cv.error")}</p>}
+          <textarea aria-label={t("s.history")} className="field min-h-44 text-base leading-relaxed" placeholder={t("s.history.ph")} value={d.history} onChange={(e) => set("history", e.target.value)} />
+        </div>
+      ),
     },
     {
       key: "skills",

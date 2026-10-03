@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { ArrowClockwise, ArrowRight, ArrowUpRight, ArrowsClockwise, CloudSun, Minus, PencilSimple, TrendUp } from "@phosphor-icons/react";
+import { ListenButton } from "@/components/Voice";
 import { db, getCached, setCached } from "@/lib/db";
 import { postJSON, profileForApi } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
@@ -99,7 +100,10 @@ export default function PulsePage() {
             <PencilSimple size={14} /> {t("s.profile.edit")}
           </Link>
         </p>
-        <p className="text-base border-l-2 border-brand pl-4">{t("p.calm")}</p>
+        <div className="flex flex-wrap items-center gap-4">
+          <p className="text-base border-l-2 border-brand pl-4">{t("p.calm")}</p>
+          {pulse?.economy && <ListenButton text={[t("p.calm"), ...pulse.roleShifts, pulse.economy, ...pulse.roles.slice(0, 3).map((r) => `${r.title}. ${r.summary}`)].join(" ")} />}
+        </div>
       </header>
 
       {error && (
@@ -242,6 +246,24 @@ export default function PulsePage() {
               <CloudSun size={22} className="text-brand" /> {t("p.economy")}
             </h2>
             {(!pulse || pulse.newsPending) && <div className="skeleton h-20" />}
+            {pulse?.cso && (
+              <div className="grid grid-cols-2 gap-3 py-2">
+                <div>
+                  <div className="font-mono text-3xl font-medium text-brand tabular-nums">{pulse.cso.rate.toFixed(1)}%</div>
+                  <div className="text-xs text-muted">{t("p.cso")}</div>
+                </div>
+                <div>
+                  <div className="font-mono text-3xl font-medium tabular-nums">{pulse.cso.youth.toFixed(1)}%</div>
+                  <div className="text-xs text-muted">{t("p.cso.youth")}</div>
+                </div>
+                <div className="col-span-2 text-[11px] text-muted">
+                  {t("p.cso.prev", { v: pulse.cso.prev.toFixed(1) })}.{" "}
+                  <a href="https://data.cso.ie/table/MUM01" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ink">
+                    {t("p.cso.src", { month: pulse.cso.month })}
+                  </a>
+                </div>
+              </div>
+            )}
             <p className="text-[15px] leading-relaxed">{pulse?.economy}</p>
           </section>
         </aside>

@@ -55,6 +55,7 @@ export interface Pulse {
   roleShifts: string[];
   economy: string;
   roles: SpotlightRole[];
+  cso?: { month: string; rate: number; prev: number; youth: number } | null;
   /** Client-only: news still loading. */
   newsPending?: boolean;
 }
