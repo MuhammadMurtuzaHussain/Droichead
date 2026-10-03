@@ -3,7 +3,6 @@
   "nav.pulse": "Mo chuisle",
   "nav.plan": "Mo phlean",
   "nav.language": "Teanga",
-
   "home.kicker": "Hack for Humanity, Baile Átha Cliath",
   "home.title": "Tá an obair ag athrú. Is féidir leatsa athrú léi.",
   "home.sub": "Inis dúinn cad a dhéanann tú i 90 soicind. Faigh léargas socair ar d'earnáil agus plean le dátaí.",
@@ -38,12 +37,11 @@
   "demo.open": "Oscail an chuisle seo",
   "home.trust.title": "Príobháideach ó dhúchas. Oscailte de réir réamhshocraithe.",
   "home.trust.1": "Gan chuntas agus gan rianú. Fanann do phróifíl sa bhrabhsálaí seo, agus is féidir í a scriosadh le cnag amháin.",
-  "home.trust.2": "Ritheann sé ar Llama 3.3, samhail oscailte, trí DigitalOcean Gradient. Ní stóráiltear rud ar bith a scríobhann tú ar fhreastalaí.",
+  "home.trust.2": "Ritheann sé ar Gemma 4, samhail oscailte, ar an ríomhaire seo féin trí Ollama. Ní fhágann do fhreagraí an meaisín riamh.",
   "home.trust.3": "Seacht dteanga, Gaeilge, Polski agus Українська ina measc, do na daoine a choinníonn Éire ag obair.",
   "home.trust.4": "Is fíor agus seiceáilte gach nasc chuig cúrsa agus nuacht. Níl cead ag an IS URL a chumadh.",
   "home.final": "Nócha soicind go dtí an chéad chéim eile, níos soiléire.",
   "home.final.d": "Gan chlárú. Gan aon rud le suiteáil.",
-
   "s.step": "{n} as {total}",
   "s.skip": "Scipeáil",
   "s.back": "Siar",
@@ -112,7 +110,6 @@
   "s.profile": "Seo tusa, go hachomair",
   "s.profile.sub": "Fanann sé seo i do bhrabhsálaí. Is féidir é a athrú am ar bith.",
   "s.profile.edit": "Athraigh freagraí",
-
   "p.hello": "Dia duit {name}, seo a bhfuil ag athrú",
   "p.hello.anon": "Seo a bhfuil ag athrú",
   "p.for": "Do {role} san earnáil {industry}, {city}.",
@@ -132,7 +129,6 @@
   "p.refresh": "Athnuaigh",
   "p.loading": "Ag léamh na nuachta ionas nach gá duitse.",
   "p.calm": "Ní thógfaidh an IS d'áit. Athróidh sé d'obair, agus is féidir leatsa í a mhúnlú freisin.",
-
   "r.back": "Ar ais go dtí an chuisle",
   "r.day": "Lá sa ról",
   "r.why": "Cén fáth a bhfuil sé ag fás anois",
@@ -148,7 +144,6 @@
   "b.months": "{n} mí",
   "b.make": "Tóg mo straitéis",
   "b.loading": "Ag dréachtú do straitéise",
-
   "pl.towards": "I dtreo {role}",
   "pl.goal": "Réidh faoi {date}",
   "pl.progress": "Seachtain {week} as {total}",
@@ -187,7 +182,6 @@
   "ev.title": "Buail le daoine a dhéanann an obair seo",
   "ev.sub": "Cruinnithe, cainteanna agus ceardlanna in aice le {city} agus ar líne.",
   "ev.on": "Aimsigh ar {site}",
-
   "f.source": "Cód foinse ar GitHub, ceadúnas MIT",
   "f.private": "Fanann do shonraí sa bhrabhsálaí seo. Ní stóráiltear aon rud ar ár bhfreastalaithe.",
   "f.export": "Easpórtáil mo shonraí",

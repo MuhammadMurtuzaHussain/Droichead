@@ -1,4 +1,5 @@
-import { FIXTURES } from "@/data/demo";
+import { FIXTURE_META, FIXTURES } from "@/data/demo";
+import { slugify } from "@/lib/slug";
 import { RESOURCE_BY_ID, RESOURCE_CATALOG } from "@/data/resources";
 import { chatJSON, hasModel } from "@/lib/llm";
 import { GapOut, LocaleIn, PlanOut, ProfileIn, RoleIn } from "@/lib/schemas";
@@ -47,13 +48,15 @@ export async function POST(req: Request) {
 
   const totalWeeks = Math.max(2, Math.min(104, Math.round((Date.parse(goalDate) - Date.parse(startDate)) / (7 * 864e5))));
   const fallback = () => Response.json({ ...schedule((FIXTURES[p.demo ?? ""] ?? FIXTURES.aoife).plan, totalWeeks), totalWeeks, offline: true });
+  const meta = p.demo ? FIXTURE_META[p.demo] : undefined;
+  if (meta && meta.locale === locale && slugify(role.title) === slugify(meta.role)) return Response.json({ ...schedule(FIXTURES[p.demo!].plan, totalWeeks), totalWeeks });
   if (!hasModel()) return fallback();
 
   try {
     const plan = await chatJSON({
       locale,
       schema: PlanOut,
-      maxTokens: 3000,
+      maxTokens: 1800,
       user: `Build a dated, realistic upskilling strategy.
 
 Person: ${p.role} (${p.level}) in ${p.industry}, ${p.city}, ${p.country}. ${p.hoursPerWeek} hours/week available. Enjoys: ${p.skills.join(", ") || "n/a"}.
@@ -67,13 +70,13 @@ ${RESOURCE_CATALOG}
 
 Rules:
 - 3 or 4 phases, ending with a visibility & applications phase (LinkedIn posts, applying to fresh roles, attending a local meetup).
-- 3-6 concrete tasks per phase; each task fits in one sitting (minutes) and respects ${p.hoursPerWeek} h/week.
+- 3-4 concrete tasks per phase, titles max 12 words; each task fits in one sitting (minutes) and respects ${p.hoursPerWeek} h/week.
 - Attach "resourceId" to a task when a catalogue resource fits, otherwise null.
 - "share" = fraction of total time for that phase (all shares sum to 1).
 - One portfolio project that proves the new skill to an employer.
 
 Return JSON:
-{"phases":[{"name":"","goal":"","share":0.25,"tasks":[{"title":"","minutes":60,"resourceId":"id-or-null"}]}],"project":{"title":"","brief":"<3 sentences>"},"resourceIds":["<4-8 catalogue ids>"]}`,
+{"phases":[{"name":"<2-4 words>","goal":"<max 12 words>","share":0.25,"tasks":[{"title":"","minutes":60,"resourceId":"id-or-null"}]}],"project":{"title":"","brief":"<2-3 sentences>"},"resourceIds":["<4-8 catalogue ids>"]}`,
     });
     return Response.json({ ...schedule(plan, totalWeeks), totalWeeks });
   } catch (e) {

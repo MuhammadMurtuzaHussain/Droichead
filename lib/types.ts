@@ -55,6 +55,8 @@ export interface Pulse {
   roleShifts: string[];
   economy: string;
   roles: SpotlightRole[];
+  /** Client-only: news still loading. */
+  newsPending?: boolean;
 }
 
 export interface SpotlightRole {

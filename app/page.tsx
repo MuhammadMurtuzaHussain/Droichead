@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
 import { motion } from "motion/react";
@@ -33,6 +34,11 @@ export default function Home() {
   const router = useRouter();
   const profile = useLiveQuery(() => db.profile.get("me"));
   const aoife = FIXTURES.aoife;
+
+  // Load the local model into memory while the visitor reads the page.
+  useEffect(() => {
+    fetch("/api/health", { method: "POST" }).catch(() => {});
+  }, []);
 
   async function tryDemo(key: "aoife" | "oksana", locale: Locale) {
     await db.profile.put({ ...DEMO_PROFILES[key], id: "me", updatedAt: Date.now() });

@@ -3,7 +3,6 @@
   "nav.pulse": "My pulse",
   "nav.plan": "My plan",
   "nav.language": "Language",
-
   "home.kicker": "Hack for Humanity, Dublin",
   "home.title": "The work is changing. You can change with it.",
   "home.sub": "Tell us what you do in 90 seconds. Get a calm read on your industry and a dated plan to grow.",
@@ -38,12 +37,11 @@
   "demo.open": "Open this pulse",
   "home.trust.title": "Private by design. Open by default.",
   "home.trust.1": "No account and no tracking. Your profile stays in this browser, and you can delete it in one tap.",
-  "home.trust.2": "Runs on open-weight Llama 3.3 through DigitalOcean Gradient. Nothing you type is stored on a server.",
+  "home.trust.2": "Runs on Gemma 4, an open-weight model, right on this computer through Ollama. Your answers never leave the machine.",
   "home.trust.3": "Seven languages, including Gaeilge, Polski and Українська, for the people who keep Ireland working.",
   "home.trust.4": "Every course and news link is real and checked. The AI is not allowed to invent URLs.",
   "home.final": "Ninety seconds to a clearer next step.",
   "home.final.d": "No sign-up. Nothing to install.",
-
   "s.step": "{n} of {total}",
   "s.skip": "Skip",
   "s.back": "Back",
@@ -112,7 +110,6 @@
   "s.profile": "Here is you, at a glance",
   "s.profile.sub": "This stays in your browser. Edit it any time.",
   "s.profile.edit": "Edit answers",
-
   "p.hello": "Hi {name}, here is what is moving",
   "p.hello.anon": "Here is what is moving",
   "p.for": "For {role} in {industry}, {city}.",
@@ -132,7 +129,6 @@
   "p.refresh": "Refresh",
   "p.loading": "Reading the news so you do not have to.",
   "p.calm": "AI will not replace you. It will reshape your work, and you can shape it back.",
-
   "r.back": "Back to pulse",
   "r.day": "A day in the role",
   "r.why": "Why it is rising now",
@@ -148,7 +144,6 @@
   "b.months": "{n} months",
   "b.make": "Build my strategy",
   "b.loading": "Drafting your strategy",
-
   "pl.towards": "Towards {role}",
   "pl.goal": "Ready by {date}",
   "pl.progress": "Week {week} of {total}",
@@ -187,7 +182,6 @@
   "ev.title": "Meet people doing this work",
   "ev.sub": "Meetups, talks and workshops near {city} and online.",
   "ev.on": "Find on {site}",
-
   "f.source": "Source on GitHub, MIT licence",
   "f.private": "Your data stays in this browser. Nothing is stored on our servers.",
   "f.export": "Export my data",

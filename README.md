@@ -26,20 +26,23 @@ AI anxiety is real, and it is not evenly spread. In Ireland, a big share of the 
 
 The UI is available in **English, Gaeilge, Polski, Українська, Español, Deutsch and Français**, and the AI writes its output in the chosen language.
 
-## How we use DigitalOcean
+## Open-source AI, running locally
 
-| | |
-|---|---|
-| **Gradient AI serverless inference** | Every AI call (pulse, roles, gap, plan, posts) uses an **open-weight model**, `llama3.3-70b-instruct` by default, through Gradient's OpenAI-compatible endpoint (`https://inference.do-ai.run/v1`). |
-| **App Platform** | The Next.js app deploys from this repo on every push (`.do/app.yaml`). The server routes are a stateless proxy: they hold the model key and store nothing. |
-
-[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/MuhammadMurtuzaHussain/Droichead/tree/main)
-
-## Open-source AI
-
-- **Open-weight models only.** By default this is Meta Llama 3.3 70B Instruct, served by DigitalOcean Gradient. You can swap it with `DO_MODEL` for any open-weight model in the Gradient catalogue, such as Qwen, Mistral or DeepSeek.
+- **Open-weight model on your own machine.** Every AI call (roles, news commentary, gap analysis, plan, LinkedIn drafts) runs on **Google Gemma 4 12B** through a local [Ollama](https://ollama.com) server. The user's answers never leave the computer.
+- **Provider-agnostic.** `lib/llm.ts` also speaks to any OpenAI-compatible endpoint that serves open-weight models, such as DigitalOcean Inference, Groq or vLLM. Set `LLM_PROVIDER=openai`, `LLM_BASE_URL`, `LLM_API_KEY` and `LLM_MODEL`.
 - **MIT licensed.**
 - **An Agent Skill** in [`skills/bridge-the-gap`](skills/bridge-the-gap/SKILL.md) packages the gap-analysis and planning method so any agent can run it.
+
+Measured on an Apple M5 laptop with Gemma 4 12B (Q4_K_M):
+
+| Call | Time |
+|---|---|
+| Gap analysis | about 9 s |
+| News commentary | about 21 s |
+| Roles | about 28 s |
+| Full 26-week plan | about 42 s |
+
+Roles and news are separate requests, so the roles render first. The landing page warms the model while you read. The two demo personas ship with pre-written content for their headline role, so a live demo never waits, and any other role or language runs live.
 
 ## Privacy and safety by design
 
@@ -55,25 +58,25 @@ Browser (Next.js, React, Tailwind v4, Motion)
   IndexedDB (Dexie): profile, plans, 24h cache
         |  profile sent per request, never stored
         v
-App Platform service (Next.js route handlers, stateless)
-  /api/pulse  RSS feeds -> Llama: summaries, role shifts, spotlight roles
-  /api/gap    Llama: have / partial / build
-  /api/plan   Llama + curated resource catalogue -> phased plan
-  /api/posts  Llama: LinkedIn drafts
+Next.js route handlers (stateless, store nothing)
+  /api/pulse  RSS feeds -> Gemma: roles, news commentary, role shifts
+  /api/gap    Gemma: have / partial / build
+  /api/plan   Gemma + curated resource catalogue -> phased, dated plan
+  /api/posts  Gemma: LinkedIn drafts
         |
         v
-DigitalOcean Gradient serverless inference (open-weight Llama 3.3 70B)
+Ollama on localhost (open-weight Gemma 4 12B)
 ```
 
 ## Run locally
 
 ```bash
+ollama pull gemma4:12b
 npm install
-echo "DO_MODEL_KEY=your-gradient-model-access-key" > .env.local
 npm run dev
 ```
 
-Without a key, the app still runs and uses the demo fixtures. Use `npm run check:i18n` to verify that every locale has every key.
+If no model is reachable, the app still runs and falls back to the demo fixtures. Use `npm run check:i18n` to verify that every locale has every key.
 
 ## Credits
 

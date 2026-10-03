@@ -3,7 +3,6 @@
   "nav.pulse": "Mi pulso",
   "nav.plan": "Mi plan",
   "nav.language": "Idioma",
-
   "home.kicker": "Hack for Humanity, Dublín",
   "home.title": "El trabajo está cambiando. Tú puedes cambiar con él.",
   "home.sub": "Cuéntanos a qué te dedicas en 90 segundos. Recibe una lectura tranquila de tu sector y un plan con fechas.",
@@ -38,12 +37,11 @@
   "demo.open": "Abrir este pulso",
   "home.trust.title": "Privado por diseño. Abierto por defecto.",
   "home.trust.1": "Sin cuenta y sin rastreo. Tu perfil se queda en este navegador y puedes borrarlo con un toque.",
-  "home.trust.2": "Funciona con el modelo abierto Llama 3.3 a través de DigitalOcean Gradient. Nada de lo que escribes se guarda en un servidor.",
+  "home.trust.2": "Funciona con Gemma 4, un modelo abierto, directamente en este ordenador mediante Ollama. Tus respuestas nunca salen del equipo.",
   "home.trust.3": "Siete idiomas, incluidos Gaeilge, Polski y Українська, para la gente que hace funcionar Irlanda.",
   "home.trust.4": "Cada enlace a cursos y noticias es real y está comprobado. La IA no puede inventar URL.",
   "home.final": "Noventa segundos hacia un siguiente paso más claro.",
   "home.final.d": "Sin registro. Nada que instalar.",
-
   "s.step": "{n} de {total}",
   "s.skip": "Omitir",
   "s.back": "Atrás",
@@ -112,7 +110,6 @@
   "s.profile": "Así eres, de un vistazo",
   "s.profile.sub": "Se queda en tu navegador. Puedes editarlo cuando quieras.",
   "s.profile.edit": "Editar respuestas",
-
   "p.hello": "Hola {name}, esto es lo que se mueve",
   "p.hello.anon": "Esto es lo que se mueve",
   "p.for": "Para {role} en {industry}, {city}.",
@@ -132,7 +129,6 @@
   "p.refresh": "Actualizar",
   "p.loading": "Leyendo las noticias para que tú no tengas que hacerlo.",
   "p.calm": "La IA no te va a sustituir. Va a transformar tu trabajo, y tú también puedes transformarlo.",
-
   "r.back": "Volver al pulso",
   "r.day": "Un día en el puesto",
   "r.why": "Por qué crece ahora",
@@ -148,7 +144,6 @@
   "b.months": "{n} meses",
   "b.make": "Crear mi estrategia",
   "b.loading": "Preparando tu estrategia",
-
   "pl.towards": "Hacia {role}",
   "pl.goal": "Listo el {date}",
   "pl.progress": "Semana {week} de {total}",
@@ -187,7 +182,6 @@
   "ev.title": "Conoce a gente que hace este trabajo",
   "ev.sub": "Meetups, charlas y talleres cerca de {city} y en línea.",
   "ev.on": "Buscar en {site}",
-
   "f.source": "Código en GitHub, licencia MIT",
   "f.private": "Tus datos se quedan en este navegador. No guardamos nada en nuestros servidores.",
   "f.export": "Exportar mis datos",

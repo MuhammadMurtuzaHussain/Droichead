@@ -46,11 +46,22 @@ export default function PulsePage() {
         return setPulse(hit);
       }
       setPulse(null);
+      const body = { profile: profileForApi(p), locale };
+      // Roles and news are separate calls so the roles (the main action) render first.
+      const rolesP = postJSON<Pick<Pulse, "roles">>("/api/pulse", { ...body, part: "roles" }).then((r) => {
+        setPulse((cur) => ({ news: [], roleShifts: [], economy: "", ...cur, roles: r.roles, newsPending: !cur?.economy }) as Pulse);
+        setCached("pulse:last", { news: [], roleShifts: [], economy: "", roles: r.roles });
+        return r;
+      });
+      const newsP = postJSON<Pick<Pulse, "news" | "roleShifts" | "economy">>("/api/pulse", { ...body, part: "news" }).then((n) => {
+        setPulse((cur) => ({ roles: [], ...cur, ...n, newsPending: false }) as Pulse);
+        return n;
+      });
       try {
-        const data = await postJSON<Pulse>("/api/pulse", { profile: profileForApi(p), locale });
+        const [r, n] = await Promise.all([rolesP, newsP]);
+        const data: Pulse = { ...n, roles: r.roles };
         await setCached(key, data);
         await setCached("pulse:last", data);
-        setPulse(data);
       } catch {
         setError(true);
       }
@@ -94,12 +105,12 @@ export default function PulsePage() {
             <h2 className="text-2xl sm:text-3xl font-semibold">{t("p.roles")}</h2>
             <p className="text-muted">{t("p.roles.sub")}</p>
           </div>
-          <button className="btn btn-quiet !py-2 !px-3.5 text-sm" onClick={() => load(true)} disabled={!pulse} aria-label={t("p.refresh")}>
+          <button className="btn btn-quiet !py-2 !px-3.5 text-sm" onClick={() => load(true)} disabled={!pulse || pulse.newsPending} aria-label={t("p.refresh")}>
             <ArrowsClockwise size={16} /> <span className="hidden sm:inline">{t("p.refresh")}</span>
           </button>
         </div>
 
-        {!pulse && !error && (
+        {!pulse?.roles.length && !error && (
           <div className="grid lg:grid-cols-12 gap-4" aria-busy="true" aria-label={t("p.loading")}>
             <div className="lg:col-span-7 rounded-[20px] bg-surface-2 p-8 space-y-4">
               <div className="skeleton h-4 w-32" />
@@ -165,8 +176,8 @@ export default function PulsePage() {
             <h2 className="text-2xl sm:text-3xl font-semibold">{t("p.news")}</h2>
             <p className="text-muted">{t("p.news.sub")}</p>
           </div>
-          {!pulse && !error && (
-            <div className="space-y-6">
+          {(!pulse || pulse.newsPending) && !error && (
+            <div className="space-y-6" aria-busy="true">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="space-y-2">
                   <div className="skeleton h-3 w-28" />
@@ -176,7 +187,7 @@ export default function PulsePage() {
               ))}
             </div>
           )}
-          {pulse && pulse.news.length === 0 && <p className="text-muted panel p-5">{t("p.noNews")}</p>}
+          {pulse && !pulse.newsPending && pulse.economy && pulse.news.length === 0 && <p className="text-muted panel p-5">{t("p.noNews")}</p>}
           <ol className="divide-y divide-line">
             {pulse?.news.map((n, i) => (
               <motion.li key={n.url} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease, delay: i * 0.06 }} className="py-5 first:pt-0 space-y-2">
@@ -204,7 +215,7 @@ export default function PulsePage() {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <ArrowsClockwise size={22} className="text-brand" /> {t("p.shifts")}
             </h2>
-            {!pulse && <div className="skeleton h-24" />}
+            {(!pulse || pulse.newsPending) && <div className="skeleton h-24" />}
             <ul className="space-y-4">
               {pulse?.roleShifts.map((s, i) => (
                 <li key={i} className="pl-4 border-l-2 border-line text-[15px] leading-relaxed">
@@ -217,7 +228,7 @@ export default function PulsePage() {
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <CloudSun size={22} className="text-brand" /> {t("p.economy")}
             </h2>
-            {!pulse && <div className="skeleton h-20" />}
+            {(!pulse || pulse.newsPending) && <div className="skeleton h-20" />}
             <p className="text-[15px] leading-relaxed">{pulse?.economy}</p>
           </section>
         </aside>

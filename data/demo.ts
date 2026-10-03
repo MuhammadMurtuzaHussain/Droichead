@@ -55,7 +55,7 @@ export const FIXTURES: Record<string, Fixture> = {
     economy:
       "Irish tech hiring is selective rather than frozen. Multinationals are trimming generalist roles while hiring for AI deployment, solutions and security. Mid-level developers who can show client-facing AI delivery stand out.",
     roles: [
-      { title: "Forward Deployed Engineer", summary: "An engineer embedded with customers who turns a product into a working solution inside their systems: integrating, configuring, debugging and demoing.", why: "AI companies now win deals on deployment, not features. Every enterprise rollout needs engineers who can code and talk to the customer.", dayInLife: "Morning discovery call with a bank's ops team, afternoon wiring an LLM agent into their ticketing API, end of day a demo to their head of support.", momentum: "rising", matchPct: 78 },
+      { title: "Forward Deployed Engineer", summary: "An engineer embedded with customers who turns a product into a working solution inside their systems: integrating, configuring, debugging and demoing.", why: "AI companies now win deals on deployment, not features. Every enterprise rollout needs engineers who can code and talk to the customer.", dayInLife: "Morning discovery call with a bank's ops team, afternoon wiring an LLM agent into their ticketing API, end of day a demo to their head of support.", momentum: "rising", matchPct: 84 },
       { title: "AI Solutions Engineer", summary: "A pre-sales and post-sales technical expert who designs AI solutions for clients and proves them with prototypes.", why: "Buyers need help separating AI hype from value; solutions engineers bridge that gap.", dayInLife: "Scoping a retrieval-augmented assistant, building a quick prototype, and presenting the architecture.", momentum: "rising", matchPct: 72 },
       { title: "LLM Application Engineer", summary: "Builds production features on top of language models: prompts, retrieval, tool use, evaluation and monitoring.", why: "Most companies are moving from AI pilots to production and need engineers who can make LLM features reliable.", dayInLife: "Improving an eval suite, tuning retrieval, shipping a guarded tool-calling feature.", momentum: "rising", matchPct: 81 },
       { title: "Platform Engineer (AI infrastructure)", summary: "Keeps model-serving, data pipelines and developer tooling fast, safe and cheap.", why: "Inference cost and reliability are now board-level topics.", dayInLife: "Rolling out a model gateway, adding cost dashboards, hardening deployments.", momentum: "steady", matchPct: 64 },
@@ -103,9 +103,9 @@ export const FIXTURES: Record<string, Fixture> = {
     economy:
       "В Ірландії стабільний попит на фінансових аналітиків і спеціалістів зі звітності, особливо в Корку та Дубліні. Роботодавці цінують досвід + цифрові навички більше, ніж ідеальну англійську.",
     roles: [
-      { title: "AI-enabled Finance Analyst", summary: "Фінансовий аналітик, який використовує ШІ-інструменти для звітності, прогнозів і пояснення відхилень.", why: "Компанії автоматизують рутину, але потребують людей, які розуміють цифри й можуть перевірити ШІ.", dayInLife: "Зранку автоматичний звіт у Power BI, вдень аналіз відхилень бюджету, ввечері коротка презентація для менеджера.", momentum: "rising", matchPct: 82 },
+      { title: "AI-enabled Finance Analyst", summary: "Фінансовий аналітик, який використовує ШІ-інструменти для звітності, прогнозів і пояснення відхилень.", why: "Компанії автоматизують рутину, але потребують людей, які розуміють цифри й можуть перевірити ШІ.", dayInLife: "Зранку автоматичний звіт у Power BI, вдень аналіз відхилень бюджету, ввечері коротка презентація для менеджера.", momentum: "rising", matchPct: 86 },
       { title: "Finance Automation Specialist", summary: "Налаштовує автоматизацію бухгалтерських процесів: звірки, рахунки, закриття місяця.", why: "Закриття місяця за 3 дні замість 10: пріоритет для багатьох фінансових відділів.", dayInLife: "Опис процесу, налаштування автоматизації, перевірка результатів з командою.", momentum: "rising", matchPct: 74 },
-      { title: "Financial Reporting Accountant (IFRS)", summary: "Готує звітність за МСФЗ для міжнародних компаній з офісами в Ірландії.", why: "Багато міжнародних компаній в Ірландії потребують МСФЗ-експертизи.", dayInLife: "Консолідація, примітки до звітності, робота з аудиторами.", momentum: "steady", matchPct: 85 },
+      { title: "Financial Reporting Accountant (IFRS)", summary: "Готує звітність за МСФЗ для міжнародних компаній з офісами в Ірландії.", why: "Багато міжнародних компаній в Ірландії потребують МСФЗ-експертизи.", dayInLife: "Консолідація, примітки до звітності, робота з аудиторами.", momentum: "steady", matchPct: 79 },
     ],
     gap: {
       have: ["9 років бухобліку", "МСФЗ", "Excel на високому рівні", "Робота з кількома обліковими системами", "Точність і контроль якості"],
@@ -135,4 +135,10 @@ export const FIXTURES: Record<string, Fixture> = {
       resourceIds: ["elements-of-ai", "springboard", "skillnet", "kaggle-learn", "pl-300", "google-data", "jobsireland"],
     },
   },
+};
+
+/** Locale and target role each demo fixture was written for. Other combinations run live. */
+export const FIXTURE_META: Record<string, { locale: string; role: string }> = {
+  aoife: { locale: "en", role: "Forward Deployed Engineer" },
+  oksana: { locale: "uk", role: "AI-enabled Finance Analyst" },
 };

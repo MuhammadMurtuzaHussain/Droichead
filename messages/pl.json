@@ -3,7 +3,6 @@
   "nav.pulse": "Mój puls",
   "nav.plan": "Mój plan",
   "nav.language": "Język",
-
   "home.kicker": "Hack for Humanity, Dublin",
   "home.title": "Praca się zmienia. Ty też możesz.",
   "home.sub": "Powiedz nam w 90 sekund, czym się zajmujesz. Dostaniesz spokojny obraz branży i plan rozwoju z datami.",
@@ -38,12 +37,11 @@
   "demo.open": "Otwórz ten puls",
   "home.trust.title": "Prywatny z założenia. Otwarty domyślnie.",
   "home.trust.1": "Bez konta i bez śledzenia. Twój profil zostaje w tej przeglądarce i możesz go usunąć jednym kliknięciem.",
-  "home.trust.2": "Działa na otwartym modelu Llama 3.3 przez DigitalOcean Gradient. Nic, co wpiszesz, nie jest zapisywane na serwerze.",
+  "home.trust.2": "Działa na Gemma 4, otwartym modelu, bezpośrednio na tym komputerze przez Ollama. Twoje odpowiedzi nigdy nie opuszczają urządzenia.",
   "home.trust.3": "Siedem języków, w tym Gaeilge, polski i Українська, dla ludzi, dzięki którym Irlandia działa.",
   "home.trust.4": "Każdy link do kursu i wiadomości jest prawdziwy i sprawdzony. AI nie może wymyślać adresów URL.",
   "home.final": "Dziewięćdziesiąt sekund do jaśniejszego kolejnego kroku.",
   "home.final.d": "Bez rejestracji. Nic do instalowania.",
-
   "s.step": "{n} z {total}",
   "s.skip": "Pomiń",
   "s.back": "Wstecz",
@@ -112,7 +110,6 @@
   "s.profile": "Oto Ty w skrócie",
   "s.profile.sub": "To zostaje w Twojej przeglądarce. Możesz to zmienić w każdej chwili.",
   "s.profile.edit": "Zmień odpowiedzi",
-
   "p.hello": "Cześć {name}, oto co się zmienia",
   "p.hello.anon": "Oto co się zmienia",
   "p.for": "Dla roli {role}, branża: {industry}, {city}.",
@@ -132,7 +129,6 @@
   "p.refresh": "Odśwież",
   "p.loading": "Czytamy wiadomości, żebyś nie musiał.",
   "p.calm": "AI Cię nie zastąpi. Zmieni Twoją pracę, a Ty możesz ją kształtować.",
-
   "r.back": "Wróć do pulsu",
   "r.day": "Dzień w tej roli",
   "r.why": "Dlaczego właśnie teraz rośnie",
@@ -148,7 +144,6 @@
   "b.months": "{n} mies.",
   "b.make": "Zbuduj strategię",
   "b.loading": "Układamy Twoją strategię",
-
   "pl.towards": "W stronę roli {role}",
   "pl.goal": "Gotowość do {date}",
   "pl.progress": "Tydzień {week} z {total}",
@@ -187,7 +182,6 @@
   "ev.title": "Poznaj ludzi, którzy to robią",
   "ev.sub": "Meetupy, prelekcje i warsztaty w okolicy {city} i online.",
   "ev.on": "Znajdź na {site}",
-
   "f.source": "Kod na GitHubie, licencja MIT",
   "f.private": "Twoje dane zostają w tej przeglądarce. Nic nie jest zapisywane na naszych serwerach.",
   "f.export": "Eksportuj moje dane",

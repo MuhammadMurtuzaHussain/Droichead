@@ -3,7 +3,6 @@
   "nav.pulse": "Mein Puls",
   "nav.plan": "Mein Plan",
   "nav.language": "Sprache",
-
   "home.kicker": "Hack for Humanity, Dublin",
   "home.title": "Die Arbeit verändert sich. Du kannst dich mit ihr verändern.",
   "home.sub": "Erzähl uns in 90 Sekunden, was du machst. Erhalte einen ruhigen Blick auf deine Branche und einen Plan mit Terminen.",
@@ -38,12 +37,11 @@
   "demo.open": "Diesen Puls öffnen",
   "home.trust.title": "Privat by Design. Offen als Standard.",
   "home.trust.1": "Kein Konto, kein Tracking. Dein Profil bleibt in diesem Browser und lässt sich mit einem Klick löschen.",
-  "home.trust.2": "Läuft mit dem offenen Modell Llama 3.3 über DigitalOcean Gradient. Nichts, was du eingibst, wird auf einem Server gespeichert.",
+  "home.trust.2": "Läuft mit Gemma 4, einem offenen Modell, direkt auf diesem Computer über Ollama. Deine Antworten verlassen nie das Gerät.",
   "home.trust.3": "Sieben Sprachen, darunter Gaeilge, Polski und Українська, für die Menschen, die Irland am Laufen halten.",
   "home.trust.4": "Jeder Kurs- und Nachrichtenlink ist echt und geprüft. Die KI darf keine URLs erfinden.",
   "home.final": "Neunzig Sekunden zu einem klareren nächsten Schritt.",
   "home.final.d": "Keine Anmeldung. Nichts zu installieren.",
-
   "s.step": "{n} von {total}",
   "s.skip": "Überspringen",
   "s.back": "Zurück",
@@ -112,7 +110,6 @@
   "s.profile": "Das bist du, auf einen Blick",
   "s.profile.sub": "Das bleibt in deinem Browser. Du kannst es jederzeit ändern.",
   "s.profile.edit": "Antworten ändern",
-
   "p.hello": "Hallo {name}, das bewegt sich gerade",
   "p.hello.anon": "Das bewegt sich gerade",
   "p.for": "Für {role} in {industry}, {city}.",
@@ -132,7 +129,6 @@
   "p.refresh": "Aktualisieren",
   "p.loading": "Wir lesen die Nachrichten, damit du es nicht musst.",
   "p.calm": "KI ersetzt dich nicht. Sie verändert deine Arbeit, und du kannst sie mitgestalten.",
-
   "r.back": "Zurück zum Puls",
   "r.day": "Ein Tag in dieser Rolle",
   "r.why": "Warum sie gerade wächst",
@@ -148,7 +144,6 @@
   "b.months": "{n} Monate",
   "b.make": "Strategie erstellen",
   "b.loading": "Deine Strategie entsteht",
-
   "pl.towards": "Auf dem Weg zu {role}",
   "pl.goal": "Bereit bis {date}",
   "pl.progress": "Woche {week} von {total}",
@@ -187,7 +182,6 @@
   "ev.title": "Triff Menschen aus diesem Bereich",
   "ev.sub": "Meetups, Vorträge und Workshops in der Nähe von {city} und online.",
   "ev.on": "Auf {site} finden",
-
   "f.source": "Quellcode auf GitHub, MIT-Lizenz",
   "f.private": "Deine Daten bleiben in diesem Browser. Auf unseren Servern wird nichts gespeichert.",
   "f.export": "Daten exportieren",
