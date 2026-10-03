@@ -1,26 +1,131 @@
 @import "tailwindcss";
 
+/* Irish palette — Connemara marble, Atlantic, gorse, peat, limestone */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --brand: #0b6e4f;
+  --brand-deep: #08483a;
+  --brand-soft: #dcefe6;
+  --accent: #e8b83a;
+  --accent-soft: #fbf0d0;
+  --accent-2: #2e5e7e;
+  --warm: #8a4f3d;
+  --warm-soft: #f3e3dc;
+  --bg: #f7f4ec;
+  --surface: #ffffff;
+  --ink: #1b2420;
+  --muted: #5f6b66;
+  --line: #e2ddd0;
+  --on-brand: #ffffff;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    --brand: #3fbf8f;
+    --brand-deep: #0e2b24;
+    --brand-soft: #173a30;
+    --accent: #f2c94c;
+    --accent-soft: #3a3218;
+    --accent-2: #7fb3d5;
+    --warm: #d9937a;
+    --warm-soft: #3a2620;
+    --bg: #0f1a17;
+    --surface: #16241f;
+    --ink: #e8efea;
+    --muted: #9aa8a1;
+    --line: #26362f;
+    --on-brand: #0f1a17;
+    color-scheme: dark;
   }
 }
 
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-2: var(--accent-2);
+  --color-warm: var(--warm);
+  --color-warm-soft: var(--warm-soft);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-on-brand: var(--on-brand);
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+  --font-serif: var(--font-serif4), Georgia, serif;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-manrope), system-ui, sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif4), Georgia, serif;
+  text-wrap: balance;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.7rem 1.3rem;
+  font-weight: 700;
+  transition: transform 0.15s ease, background 0.15s ease;
+  text-align: center;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--brand); color: var(--on-brand); }
+.btn-primary:hover { background: var(--brand-deep); color: #fff; }
+.btn-ghost { border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.btn-ghost:hover { border-color: var(--brand); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.chip[aria-pressed="true"] {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--on-brand);
+}
+
+.wave {
+  height: 14px;
+  background: radial-gradient(circle at 10px -4px, transparent 12px, var(--brand) 13px) repeat-x;
+  background-size: 20px 14px;
+  opacity: 0.18;
+}
+
+@keyframes shimmer { 0% { opacity: .5 } 50% { opacity: 1 } 100% { opacity: .5 } }
+.skeleton { background: var(--line); border-radius: .75rem; animation: shimmer 1.4s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }

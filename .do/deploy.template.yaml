@@ -1,0 +1,24 @@
+spec:
+  name: droichead
+  region: lon
+  services:
+    - name: web
+      github:
+        repo: MuhammadMurtuzaHussain/Droichead
+        branch: main
+        deploy_on_push: true
+      environment_slug: node-js
+      build_command: npm run build
+      run_command: npm start
+      http_port: 8080
+      instance_count: 1
+      instance_size_slug: apps-s-1vcpu-1gb
+      health_check:
+        http_path: /api/health
+      envs:
+        - key: DO_MODEL_KEY
+          scope: RUN_TIME
+          type: SECRET
+        - key: DO_MODEL
+          scope: RUN_TIME
+          value: llama3.3-70b-instruct
