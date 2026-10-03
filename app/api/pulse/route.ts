@@ -27,7 +27,7 @@ const withSlugs = (roles: Omit<SpotlightRole, "slug">[]) => [...roles].sort((a, 
 
 const demoFixture = (p: P, locale: string) => (p.demo && FIXTURE_META[p.demo]?.locale === locale ? FIXTURES[p.demo] : undefined);
 
-async function roles(p: P, locale: z.infer<typeof LocaleIn>) {
+async function roles(p: P, locale: z.infer<typeof LocaleIn>, signal: AbortSignal) {
   const fixture = demoFixture(p, locale);
   // Demo personas ship with pre-written content so a live demo never waits.
   if (fixture || !hasModel()) return { roles: withSlugs((fixture ?? FIXTURES.aoife).roles), offline: !fixture };
@@ -35,6 +35,7 @@ async function roles(p: P, locale: z.infer<typeof LocaleIn>) {
     const out = await chatJSON({
       locale,
       schema: RolesOut,
+      signal,
       maxTokens: 900,
       temperature: 0.6,
       user: `${describe(p)}
@@ -51,7 +52,7 @@ Return JSON:
   }
 }
 
-async function news(p: P, locale: z.infer<typeof LocaleIn>) {
+async function news(p: P, locale: z.infer<typeof LocaleIn>, signal: AbortSignal) {
   const articles = await fetchNews(p.industry, 10);
   const raw: NewsItem[] = articles.slice(0, 5).map((a) => ({ title: a.title, url: a.url, source: a.domain, date: a.date, soWhat: "" }));
   const fixture = demoFixture(p, locale);
@@ -62,6 +63,7 @@ async function news(p: P, locale: z.infer<typeof LocaleIn>) {
     const out = await chatJSON({
       locale,
       schema: NewsOut,
+      signal,
       maxTokens: 800,
       user: `${describe(p)}
 
@@ -91,5 +93,5 @@ export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "bad_request" }, { status: 400 });
   const { profile, locale, part } = parsed.data;
-  return Response.json(part === "roles" ? await roles(profile, locale) : await news(profile, locale));
+  return Response.json(part === "roles" ? await roles(profile, locale, req.signal) : await news(profile, locale, req.signal));
 }

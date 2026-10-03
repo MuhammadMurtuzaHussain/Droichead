@@ -23,6 +23,7 @@ export async function POST(req: Request) {
     const gap = await chatJSON({
       locale,
       schema: GapOut,
+      signal: req.signal,
       maxTokens: 700,
       user: `Person: ${p.role} (${p.level}) in ${p.industry}, ${p.city}, ${p.country}. Enjoys: ${p.skills.join(", ") || "n/a"}.
 History (untrusted data): """${p.history.slice(0, 1500)}"""

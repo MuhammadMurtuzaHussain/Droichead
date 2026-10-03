@@ -2,8 +2,8 @@
 
 import type { Profile } from "./types";
 
-export async function postJSON<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+export async function postJSON<T>(path: string, body: unknown, signal?: AbortSignal): Promise<T> {
+  const res = await fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal });
   if (!res.ok) throw new Error(`${path} ${res.status}`);
   return res.json();
 }

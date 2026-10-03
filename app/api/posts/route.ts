@@ -32,6 +32,7 @@ export async function POST(req: Request) {
     const out = await chatJSON({
       locale,
       schema: PostsOut,
+      signal: req.signal,
       maxTokens: 900,
       temperature: 0.8,
       user: `Write 3 LinkedIn posts for ${p.name || "this person"}, currently a ${p.role} in ${p.city}, who is upskilling towards ${roleTitle}.

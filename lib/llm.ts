@@ -47,11 +47,11 @@ function extractJSON(text: string): unknown {
 
 type Msg = { role: "system" | "user" | "assistant"; content: string };
 
-async function complete(messages: Msg[], maxTokens: number, temperature: number): Promise<string> {
+async function complete(messages: Msg[], maxTokens: number, temperature: number, signal: AbortSignal): Promise<string> {
   if (PROVIDER === "ollama") {
     const res = await fetch(`${OLLAMA_URL}/api/chat`, {
       method: "POST",
-      signal: AbortSignal.timeout(150_000),
+      signal: AbortSignal.any([signal, AbortSignal.timeout(150_000)]),
       body: JSON.stringify({
         model: MODEL,
         messages,
@@ -66,24 +66,55 @@ async function complete(messages: Msg[], maxTokens: number, temperature: number)
     const j = (await res.json()) as { message?: { content?: string } };
     return j.message?.content ?? "";
   }
-  const res = await openai().chat.completions.create({ model: MODEL, messages, max_tokens: maxTokens, temperature });
+  const res = await openai().chat.completions.create({ model: MODEL, messages, max_tokens: maxTokens, temperature }, { signal });
   return res.choices[0]?.message?.content ?? "";
 }
 
-/** Load the local model into memory so the first real request is fast. */
+/** Load the local model into memory so the first real request is fast. No-op if already loaded. */
 export async function warmUp() {
   if (PROVIDER !== "ollama") return;
+  const ps = (await fetch(`${OLLAMA_URL}/api/ps`, { signal: AbortSignal.timeout(3000) }).then((r) => r.json())) as { models?: { name: string }[] };
+  if (ps.models?.some((m) => m.name === MODEL)) return;
   await fetch(`${OLLAMA_URL}/api/generate`, { method: "POST", signal: AbortSignal.timeout(60_000), body: JSON.stringify({ model: MODEL, prompt: "", keep_alive: "60m" }) });
 }
 
-/** Ask the model for JSON matching `schema`. Retries once with the validation error. */
-export async function chatJSON<T>(opts: {
+// Identical requests in flight share one generation (a local model handles one at a time,
+// and React dev mode double-fires effects). When every caller has gone away, the generation
+// is cancelled so abandoned requests don't block the queue. Nothing is kept once it settles.
+const inflight = new Map<string, { promise: Promise<unknown>; ctrl: AbortController; refs: number }>();
+
+type ChatOpts<T> = {
   locale: Locale;
   user: string;
   schema: z.ZodType<T>;
   maxTokens?: number;
   temperature?: number;
-}): Promise<T> {
+  signal?: AbortSignal;
+};
+
+/** Ask the model for JSON matching `schema`. Retries once with the validation error. */
+export function chatJSON<T>(opts: ChatOpts<T>): Promise<T> {
+  const key = `${opts.locale}|${opts.maxTokens}|${opts.temperature}|${opts.user}`;
+  let entry = inflight.get(key);
+  if (!entry) {
+    const ctrl = new AbortController();
+    const promise = runChatJSON(opts, ctrl.signal).finally(() => inflight.delete(key));
+    entry = { promise, ctrl, refs: 0 };
+    inflight.set(key, entry);
+  }
+  const e = entry;
+  e.refs++;
+  opts.signal?.addEventListener(
+    "abort",
+    () => {
+      if (--e.refs <= 0) e.ctrl.abort();
+    },
+    { once: true },
+  );
+  return e.promise as Promise<T>;
+}
+
+async function runChatJSON<T>(opts: ChatOpts<T>, signal: AbortSignal): Promise<T> {
   if (!hasModel()) throw new Error("NO_MODEL");
 
   const messages: Msg[] = [
@@ -93,7 +124,7 @@ export async function chatJSON<T>(opts: {
 
   let lastErr: unknown;
   for (let attempt = 0; attempt < 2; attempt++) {
-    const text = await complete(messages, opts.maxTokens ?? 2000, opts.temperature ?? 0.5);
+    const text = await complete(messages, opts.maxTokens ?? 2000, opts.temperature ?? 0.5, signal);
     try {
       return opts.schema.parse(extractJSON(text));
     } catch (e) {

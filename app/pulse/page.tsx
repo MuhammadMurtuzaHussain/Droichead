@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { ArrowClockwise, ArrowRight, ArrowUpRight, ArrowsClockwise, CloudSun, Minus, PencilSimple, TrendUp } from "@phosphor-icons/react";
@@ -27,7 +27,9 @@ function Momentum({ m }: { m: SpotlightRole["momentum"] }) {
 }
 
 export default function PulsePage() {
-  const { t, locale, formatDate } = useI18n();
+  const { t, locale, ready, formatDate } = useI18n();
+  const run = useRef(0);
+  const ctrl = useRef<AbortController | null>(null);
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [pulse, setPulse] = useState<Pulse | null>(null);
@@ -35,6 +37,11 @@ export default function PulsePage() {
 
   const load = useCallback(
     async (force = false) => {
+      if (!ready) return;
+      const id = ++run.current;
+      const live = () => id === run.current; // ignore responses from a superseded load
+      ctrl.current?.abort();
+      const ac = (ctrl.current = new AbortController());
       const p = await db.profile.get("me");
       if (!p) return router.replace("/start");
       setProfile(p);
@@ -43,35 +50,41 @@ export default function PulsePage() {
       const hit = !force && (await getCached<Pulse>(key));
       if (hit) {
         await setCached("pulse:last", hit);
-        return setPulse(hit);
+        return live() && setPulse(hit);
       }
       setPulse(null);
       const body = { profile: profileForApi(p), locale };
       // Roles and news are separate calls so the roles (the main action) render first.
-      const rolesP = postJSON<Pick<Pulse, "roles">>("/api/pulse", { ...body, part: "roles" }).then((r) => {
+      const rolesP = postJSON<Pick<Pulse, "roles">>("/api/pulse", { ...body, part: "roles" }, ac.signal).then((r) => {
+        if (!live()) return r;
         setPulse((cur) => ({ news: [], roleShifts: [], economy: "", ...cur, roles: r.roles, newsPending: !cur?.economy }) as Pulse);
         setCached("pulse:last", { news: [], roleShifts: [], economy: "", roles: r.roles });
         return r;
       });
-      const newsP = postJSON<Pick<Pulse, "news" | "roleShifts" | "economy">>("/api/pulse", { ...body, part: "news" }).then((n) => {
+      const newsP = postJSON<Pick<Pulse, "news" | "roleShifts" | "economy">>("/api/pulse", { ...body, part: "news" }, ac.signal).then((n) => {
+        if (!live()) return n;
         setPulse((cur) => ({ roles: [], ...cur, ...n, newsPending: false }) as Pulse);
         return n;
       });
       try {
         const [r, n] = await Promise.all([rolesP, newsP]);
+        if (!live()) return;
         const data: Pulse = { ...n, roles: r.roles };
         await setCached(key, data);
         await setCached("pulse:last", data);
       } catch {
-        setError(true);
+        if (live()) setError(true);
       }
     },
-    [locale, router],
+    [locale, ready, router],
   );
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // Cancel in-flight generations when leaving the page.
+  useEffect(() => () => ctrl.current?.abort(), []);
 
   if (!profile) return null;
   const [top, ...rest] = pulse?.roles ?? [];

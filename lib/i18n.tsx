@@ -17,6 +17,8 @@ const STORAGE_KEY = "droichead.locale";
 export type TFn = (key: string, vars?: Record<string, string | number>) => string;
 
 interface I18nCtx {
+  /** False until the saved or browser locale has been read, so pages don't fetch in the wrong language. */
+  ready: boolean;
   locale: Locale;
   setLocale: (l: Locale) => void;
   t: TFn;
@@ -36,9 +38,11 @@ function detect(): Locale {
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("en");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     setLocaleState(detect());
+    setReady(true);
   }, []);
 
   useEffect(() => {
@@ -75,7 +79,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [locale],
   );
 
-  return <Ctx.Provider value={{ locale, setLocale, t, formatDate }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ ready, locale, setLocale, t, formatDate }}>{children}</Ctx.Provider>;
 }
 
 export function useI18n() {

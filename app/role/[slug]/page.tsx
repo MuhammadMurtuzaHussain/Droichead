@@ -40,7 +40,7 @@ function GapColumn({ title, items, tone, icon: I, delay }: { title: string; item
 
 export default function RolePage() {
   const { slug } = useParams<{ slug: string }>();
-  const { t, locale } = useI18n();
+  const { t, locale, ready } = useI18n();
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [role, setRole] = useState<SpotlightRole | null>(null);
@@ -52,6 +52,8 @@ export default function RolePage() {
   const decoded = useMemo(() => decodeURIComponent(slug), [slug]);
 
   useEffect(() => {
+    if (!ready) return;
+    let stale = false;
     (async () => {
       const p = await db.profile.get("me");
       if (!p) return router.replace("/start");
@@ -68,12 +70,15 @@ export default function RolePage() {
       try {
         const g = await postJSON<Gap>("/api/gap", { profile: profileForApi(p), role: { slug: r.slug, title: r.title, summary: r.summary }, locale });
         await setCached(key, g);
-        setGap(g);
+        if (!stale) setGap(g);
       } catch {
-        setGapError(true);
+        if (!stale) setGapError(true);
       }
     })();
-  }, [decoded, locale, router]);
+    return () => {
+      stale = true;
+    };
+  }, [decoded, locale, ready, router]);
 
   async function build() {
     if (!profile || !role) return;

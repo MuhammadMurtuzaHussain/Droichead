@@ -56,6 +56,7 @@ export async function POST(req: Request) {
     const plan = await chatJSON({
       locale,
       schema: PlanOut,
+      signal: req.signal,
       maxTokens: 1800,
       user: `Build a dated, realistic upskilling strategy.
 
