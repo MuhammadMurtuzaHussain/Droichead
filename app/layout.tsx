@@ -9,13 +9,16 @@ const geist = Geist({ variable: "--font-geist", subsets: ["latin", "latin-ext", 
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin", "cyrillic"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.SITE_URL ?? "https://droichead.onrender.com"),
   title: "Droichead",
   description: "A calm, private career navigator for the AI era. See what is changing in your industry, find rising roles, and get a dated plan to bridge the gap. In 7 languages.",
   openGraph: {
     title: "Droichead: bridge the gap to the job that's coming",
     description: "Rising roles, honest gap analysis and a dated plan, in 7 languages. Built in Dublin for Hack for Humanity.",
-    images: ["https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Samuel_Beckett_Bridge%2C_Dublin_20150807_1.jpg/1920px-Samuel_Beckett_Bridge%2C_Dublin_20150807_1.jpg"],
+    siteName: "Droichead",
+    type: "website",
   },
+  twitter: { card: "summary_large_image", title: "Droichead: bridge the gap to the job that's coming", description: "Rising roles, honest gap analysis and a dated plan, in 7 languages." },
 };
 
 export const viewport: Viewport = { themeColor: "#07110e", colorScheme: "dark" };
