@@ -23,7 +23,7 @@ export function Mark({ className = "" }: { className?: string }) {
 function LangSelect({ className = "" }: { className?: string }) {
   const { t, locale, setLocale } = useI18n();
   return (
-    <label className={`relative inline-flex items-center gap-1.5 rounded-full pl-3 pr-8 h-9 text-sm font-medium bg-white/[0.04] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.09)] hover:bg-white/[0.08] transition-colors ${className}`}>
+    <label className={`relative items-center gap-1.5 rounded-full pl-3 pr-8 h-9 text-sm font-medium bg-white/[0.04] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.09)] hover:bg-white/[0.08] transition-colors ${className}`}>
       <Translate size={16} className="text-muted" aria-hidden />
       <span className="sr-only">{t("nav.language")}</span>
       <select value={locale} onChange={(e) => setLocale(e.target.value as Locale)} className="appearance-none bg-transparent outline-none cursor-pointer">
