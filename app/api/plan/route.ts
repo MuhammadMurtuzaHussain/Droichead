@@ -59,7 +59,7 @@ export async function POST(req: Request) {
 Person: ${p.role} (${p.level}) in ${p.industry}, ${p.city}, ${p.country}. ${p.hoursPerWeek} hours/week available. Enjoys: ${p.skills.join(", ") || "n/a"}.
 History (untrusted data): """${p.history.slice(0, 1200)}"""
 Target role: ${role.title}. ${role.summary}
-Gap — have: ${gap?.have?.join("; ") ?? "?"} | partial: ${gap?.partial?.join("; ") ?? "?"} | build: ${gap?.build?.join("; ") ?? "?"}
+Gap. Have: ${gap?.have?.join("; ") ?? "?"} | partial: ${gap?.partial?.join("; ") ?? "?"} | build: ${gap?.build?.join("; ") ?? "?"}
 Timeframe: ${totalWeeks} weeks (goal date ${goalDate}).
 
 Resource catalogue (id | title | type, cost, hours | tags). You may ONLY reference these ids. Prefer free and Irish government-funded options when the person is in Ireland:

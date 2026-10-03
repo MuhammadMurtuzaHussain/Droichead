@@ -26,7 +26,7 @@ export const DEMO_PROFILES: Record<string, DemoProfile> = {
     role: "Бухгалтерка",
     industry: "finance",
     level: "senior",
-    history: "9 років бухгалтеркою в Харкові (МСФЗ, 1С, Excel). З 2023 року в Корку, працюю в адмініструванні рахунків. Англійська — B2.",
+    history: "9 років бухгалтеркою в Харкові (МСФЗ, 1С, Excel). З 2023 року в Корку, працюю в адмініструванні рахунків. Англійська: B2.",
     skills: ["Numbers & finance", "Data & spreadsheets", "Organising projects"],
     aiFeeling: 1,
     hoursPerWeek: 5,
@@ -70,7 +70,7 @@ export const FIXTURES: Record<string, Fixture> = {
     plan: {
       phases: [
         { name: "Foundations", goal: "Get fluent with LLM integration patterns", share: 0.25, tasks: [
-          { title: "Complete Anthropic prompt engineering course (chapters 1–4)", minutes: 120, resourceId: "anthropic-courses" },
+          { title: "Complete Anthropic prompt engineering course (chapters 1-4)", minutes: 120, resourceId: "anthropic-courses" },
           { title: "DeepLearning.AI short course: functions, tools & agents", minutes: 90, resourceId: "dlai-short" },
           { title: "Write a one-page note: 3 LLM failure modes you've seen", minutes: 45 },
         ] },
@@ -98,31 +98,31 @@ export const FIXTURES: Record<string, Fixture> = {
     roleShifts: [
       "Рутинне введення даних і звірки дедалі більше автоматизує ШІ. Цінність переходить до аналізу, контролю якості та пояснення цифр.",
       "Фінансові команди шукають людей, які поєднують знання бухобліку з Power BI, Excel Copilot та автоматизацією звітів.",
-      "Знання МСФЗ і досвід роботи з кількома системами — сильна перевага під час впровадження ШІ-інструментів.",
+      "Знання МСФЗ і досвід роботи з кількома системами: це сильна перевага під час впровадження ШІ-інструментів.",
     ],
     economy:
       "В Ірландії стабільний попит на фінансових аналітиків і спеціалістів зі звітності, особливо в Корку та Дубліні. Роботодавці цінують досвід + цифрові навички більше, ніж ідеальну англійську.",
     roles: [
-      { title: "AI-enabled Finance Analyst", summary: "Фінансовий аналітик, який використовує ШІ-інструменти для звітності, прогнозів і пояснення відхилень.", why: "Компанії автоматизують рутину, але потребують людей, які розуміють цифри й можуть перевірити ШІ.", dayInLife: "Ранок — автоматичний звіт у Power BI, день — аналіз відхилень бюджету, вечір — коротка презентація для менеджера.", momentum: "rising", matchPct: 82 },
-      { title: "Finance Automation Specialist", summary: "Налаштовує автоматизацію бухгалтерських процесів: звірки, рахунки, закриття місяця.", why: "Закриття місяця за 3 дні замість 10 — пріоритет для багатьох фінансових відділів.", dayInLife: "Опис процесу, налаштування автоматизації, перевірка результатів з командою.", momentum: "rising", matchPct: 74 },
+      { title: "AI-enabled Finance Analyst", summary: "Фінансовий аналітик, який використовує ШІ-інструменти для звітності, прогнозів і пояснення відхилень.", why: "Компанії автоматизують рутину, але потребують людей, які розуміють цифри й можуть перевірити ШІ.", dayInLife: "Зранку автоматичний звіт у Power BI, вдень аналіз відхилень бюджету, ввечері коротка презентація для менеджера.", momentum: "rising", matchPct: 82 },
+      { title: "Finance Automation Specialist", summary: "Налаштовує автоматизацію бухгалтерських процесів: звірки, рахунки, закриття місяця.", why: "Закриття місяця за 3 дні замість 10: пріоритет для багатьох фінансових відділів.", dayInLife: "Опис процесу, налаштування автоматизації, перевірка результатів з командою.", momentum: "rising", matchPct: 74 },
       { title: "Financial Reporting Accountant (IFRS)", summary: "Готує звітність за МСФЗ для міжнародних компаній з офісами в Ірландії.", why: "Багато міжнародних компаній в Ірландії потребують МСФЗ-експертизи.", dayInLife: "Консолідація, примітки до звітності, робота з аудиторами.", momentum: "steady", matchPct: 85 },
     ],
     gap: {
       have: ["9 років бухобліку", "МСФЗ", "Excel на високому рівні", "Робота з кількома обліковими системами", "Точність і контроль якості"],
       partial: ["Англійська для презентацій", "Ірландські податкові правила"],
-      build: ["Power BI", "Excel Copilot та ШІ-асистенти", "Базовий SQL", "Портфоліо з 1–2 звітів"],
+      build: ["Power BI", "Excel Copilot та ШІ-асистенти", "Базовий SQL", "Портфоліо з 1-2 звітів"],
       weeksEstimate: 18,
-      encouragement: "Ваш досвід — це фундамент. Бракує лише кількох цифрових інструментів, і більшість із них можна вивчити безкоштовно або за державні кошти.",
+      encouragement: "Ваш досвід: це фундамент. Бракує лише кількох цифрових інструментів, і більшість із них можна вивчити безкоштовно або за державні кошти.",
     },
     plan: {
       phases: [
         { name: "Основи", goal: "Зрозуміти ШІ для фінансів", share: 0.25, tasks: [
-          { title: "Elements of AI українською — модулі 1–3", minutes: 120, resourceId: "elements-of-ai" },
+          { title: "Elements of AI українською, модулі 1-3", minutes: 120, resourceId: "elements-of-ai" },
           { title: "Зареєструватися в Skillnet Ireland / Springboard+", minutes: 45, resourceId: "springboard" },
         ] },
         { name: "Інструменти", goal: "Power BI та SQL", share: 0.4, tasks: [
           { title: "Kaggle Learn: курс SQL", minutes: 120, resourceId: "kaggle-learn" },
-          { title: "Microsoft Learn: шлях PL-300, модулі 1–4", minutes: 180, resourceId: "pl-300" },
+          { title: "Microsoft Learn: шлях PL-300, модулі 1-4", minutes: 180, resourceId: "pl-300" },
           { title: "Побудувати дашборд витрат у Power BI", minutes: 150 },
         ] },
         { name: "Видимість і заявки", goal: "Показати результат роботодавцям", share: 0.35, tasks: [

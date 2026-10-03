@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
+import { ArrowLeft, ArrowRight, CheckCircle, Circle, CircleHalf, Clock, Sun, TrendUp, type Icon } from "@phosphor-icons/react";
 import { db, getCached, setCached } from "@/lib/db";
 import { isoDate, postJSON, profileForApi } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import type { Gap, Plan, Profile, Pulse, SpotlightRole } from "@/lib/types";
 
 const PRESETS = [3, 6, 12];
+const ease = [0.16, 1, 0.3, 1] as const;
 
 function addMonths(m: number) {
   const d = new Date();
@@ -17,22 +19,22 @@ function addMonths(m: number) {
   return isoDate(d);
 }
 
-function GapColumn({ title, items, tone, icon }: { title: string; items: string[]; tone: "brand" | "accent" | "warm"; icon: string }) {
-  const bg = { brand: "bg-brand-soft", accent: "bg-accent-soft", warm: "bg-warm-soft" }[tone];
-  const border = { brand: "border-brand", accent: "border-accent", warm: "border-warm" }[tone];
+function GapColumn({ title, items, tone, icon: I, delay }: { title: string; items: string[]; tone: "brand" | "gorse" | "peat"; icon: Icon; delay: number }) {
+  const bg = { brand: "bg-brand-soft", gorse: "bg-gorse-soft", peat: "bg-peat-soft" }[tone];
+  const fg = { brand: "text-brand", gorse: "text-gorse", peat: "text-peat" }[tone];
   return (
-    <div className={`rounded-2xl p-4 ${bg} border-t-4 ${border}`}>
-      <h3 className="font-bold mb-2">
-        {icon} {title}
+    <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease, delay }} className={`rounded-[20px] ${bg} p-6 space-y-4`}>
+      <h3 className={`font-semibold flex items-center gap-2 ${fg}`}>
+        <I size={20} weight="fill" /> {title}
       </h3>
-      <ul className="space-y-1.5 text-sm">
-        {items.map((s, i) => (
-          <motion.li key={s} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
+      <ul className="space-y-2.5">
+        {items.map((s) => (
+          <li key={s} className="text-[15px] leading-snug">
             {s}
-          </motion.li>
+          </li>
         ))}
       </ul>
-    </div>
+    </motion.div>
   );
 }
 
@@ -62,6 +64,7 @@ export default function RolePage() {
       const hit = await getCached<Gap>(key);
       if (hit) return setGap(hit);
       setGap(null);
+      setGapError(false);
       try {
         const g = await postJSON<Gap>("/api/gap", { profile: profileForApi(p), role: { slug: r.slug, title: r.title, summary: r.summary }, locale });
         await setCached(key, g);
@@ -96,77 +99,121 @@ export default function RolePage() {
   }
 
   if (!role || !profile) return null;
-  const minDate = addMonths(1);
 
   return (
-    <div className="space-y-8">
-      <Link href="/pulse" className="text-sm font-semibold text-muted hover:text-brand">
-        ← {t("r.back")}
-      </Link>
+    <div className="pt-8 sm:pt-12 space-y-14">
+      <div className="space-y-6">
+        <Link href="/pulse" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink">
+          <ArrowLeft size={16} /> {t("r.back")}
+        </Link>
+        <header className="grid lg:grid-cols-12 gap-6 items-end">
+          <div className="lg:col-span-8 space-y-4">
+            <h1 className="text-4xl sm:text-6xl font-semibold leading-[1.02] tracking-[-0.035em]">{role.title}</h1>
+            <p className="text-lg text-muted max-w-[60ch]">{role.summary}</p>
+          </div>
+          <div className="lg:col-span-4 flex lg:justify-end items-baseline gap-3">
+            <span className="font-mono text-5xl font-medium text-brand">{Math.round(role.matchPct)}%</span>
+            <span className="text-muted">{t("p.match")}</span>
+            {role.momentum === "rising" && (
+              <span className="inline-flex items-center gap-1 text-sm font-semibold text-brand">
+                <TrendUp size={16} weight="bold" /> {t("p.rising")}
+              </span>
+            )}
+          </div>
+        </header>
+      </div>
 
-      <header className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className={`chip text-xs ${role.momentum === "rising" ? "bg-accent-soft border-accent" : ""}`}>{role.momentum === "rising" ? `🔥 ${t("p.rising")}` : `📈 ${t("p.steady")}`}</span>
-          <span className="chip text-xs text-brand">{t("p.match", { n: Math.round(role.matchPct) })}</span>
-        </div>
-        <h1 className="text-4xl sm:text-5xl font-bold">{role.title}</h1>
-        <p className="text-lg text-muted max-w-3xl">{role.summary}</p>
-      </header>
-
-      <div className="grid sm:grid-cols-2 gap-4">
-        <section className="card p-5">
-          <h2 className="font-bold text-lg mb-1">☀️ {t("r.day")}</h2>
-          <p>{role.dayInLife}</p>
+      <div className="grid md:grid-cols-2 gap-8 border-t border-line pt-8">
+        <section className="space-y-2">
+          <h2 className="font-semibold flex items-center gap-2">
+            <Sun size={20} className="text-brand" /> {t("r.day")}
+          </h2>
+          <p className="text-[17px] leading-relaxed">{role.dayInLife}</p>
         </section>
-        <section className="card p-5">
-          <h2 className="font-bold text-lg mb-1">📈 {t("r.why")}</h2>
-          <p>{role.why}</p>
+        <section className="space-y-2">
+          <h2 className="font-semibold flex items-center gap-2">
+            <TrendUp size={20} className="text-brand" /> {t("r.why")}
+          </h2>
+          <p className="text-[17px] leading-relaxed">{role.why}</p>
         </section>
       </div>
 
-      <section className="card p-5 sm:p-6 space-y-4">
-        <h2 className="text-2xl font-bold">{t("r.gap")}</h2>
-        {!gap && !gapError && <p className="text-muted animate-pulse">{t("r.gap.loading")}</p>}
-        {gapError && <p className="text-warm">{t("err.generic")}</p>}
+      <section className="space-y-6">
+        <h2 className="text-2xl sm:text-3xl font-semibold">{t("r.gap")}</h2>
+        {!gap && !gapError && (
+          <div className="grid md:grid-cols-3 gap-4" aria-busy="true">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="rounded-[20px] bg-surface-2 p-6 space-y-3">
+                <div className="skeleton h-5 w-1/2" />
+                <div className="skeleton h-4 w-full" />
+                <div className="skeleton h-4 w-4/5" />
+                <div className="skeleton h-4 w-2/3" />
+              </div>
+            ))}
+            <p className="text-sm text-muted md:col-span-3">{t("r.gap.loading")}</p>
+          </div>
+        )}
+        {gapError && (
+          <p role="alert" className="text-peat">
+            {t("err.generic")}
+          </p>
+        )}
         {gap && (
           <>
-            <div className="grid sm:grid-cols-3 gap-3">
-              <GapColumn title={t("g.have")} items={gap.have} tone="brand" icon="✅" />
-              <GapColumn title={t("g.partial")} items={gap.partial} tone="accent" icon="🟡" />
-              <GapColumn title={t("g.build")} items={gap.build} tone="warm" icon="🧱" />
+            <div className="grid md:grid-cols-3 gap-4">
+              <GapColumn title={t("g.have")} items={gap.have} tone="brand" icon={CheckCircle} delay={0} />
+              <GapColumn title={t("g.partial")} items={gap.partial} tone="gorse" icon={CircleHalf} delay={0.08} />
+              <GapColumn title={t("g.build")} items={gap.build} tone="peat" icon={Circle} delay={0.16} />
             </div>
-            <p className="font-serif text-lg italic">{gap.encouragement}</p>
-            <p className="text-sm text-muted font-semibold">⏱ {t("r.estimate", { weeks: Math.round(gap.weeksEstimate), hours: profile.hoursPerWeek })}</p>
+            <div className="grid lg:grid-cols-12 gap-4 items-start">
+              <p className="lg:col-span-8 text-xl leading-relaxed">{gap.encouragement}</p>
+              <p className="lg:col-span-4 lg:justify-self-end text-sm text-muted flex items-center gap-2">
+                <Clock size={18} /> {t("r.estimate", { weeks: Math.round(gap.weeksEstimate), hours: profile.hoursPerWeek })}
+              </p>
+            </div>
           </>
         )}
       </section>
 
-      <section className="rounded-[2rem] bg-brand-deep text-white p-6 sm:p-8 space-y-5">
-        <div>
-          <h2 className="text-3xl font-bold">🌉 {t("r.cta")}</h2>
-          <p className="text-white/80 text-lg">
-            {t("b.title")}: {t("b.sub")}
-          </p>
+      <motion.section initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, ease }} className="rounded-[20px] bg-deep text-on-deep p-7 sm:p-10 grid lg:grid-cols-12 gap-8 items-end">
+        <div className="lg:col-span-6 space-y-3">
+          <h2 className="text-3xl sm:text-4xl font-semibold">{t("r.cta")}</h2>
+          <p className="text-on-deep/75 text-lg max-w-[42ch]">{t("b.sub")}</p>
         </div>
-        <div className="space-y-2">
-          <div className="font-semibold">{t("b.by")}</div>
-          <div className="flex flex-wrap gap-2 items-center">
-            {PRESETS.map((m) => {
-              const v = addMonths(m);
-              return (
-                <button key={m} onClick={() => setGoal(v)} aria-pressed={goal === v} className={`chip border-white/30 ${goal === v ? "!bg-accent !text-ink !border-accent" : "!bg-transparent text-white"}`}>
-                  {t("b.months", { n: m })}
-                </button>
-              );
-            })}
-            <input type="date" min={minDate} value={goal} onChange={(e) => e.target.value && setGoal(e.target.value)} className="rounded-full px-4 py-1.5 text-ink bg-white font-semibold" aria-label={t("b.by")} />
-          </div>
+        <div className="lg:col-span-6 space-y-5">
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium text-on-deep/75 mb-3">{t("b.by")}</legend>
+            <div className="flex flex-wrap gap-2 items-center">
+              {PRESETS.map((m) => {
+                const v = addMonths(m);
+                const on = goal === v;
+                return (
+                  <button key={m} onClick={() => setGoal(v)} aria-pressed={on} className={`rounded-full px-4 h-10 text-sm font-semibold border transition-colors ${on ? "bg-on-deep text-deep border-on-deep" : "border-on-deep/30 hover:border-on-deep"}`}>
+                    {t("b.months", { n: m })}
+                  </button>
+                );
+              })}
+              <input type="date" min={addMonths(1)} value={goal} onChange={(e) => e.target.value && setGoal(e.target.value)} aria-label={t("b.by")} className="rounded-full h-10 px-4 bg-transparent border border-on-deep/30 text-on-deep font-mono text-sm [color-scheme:dark]" />
+            </div>
+          </fieldset>
+          <button className="btn btn-on-deep text-base px-6 py-4" onClick={build} disabled={building || !gap}>
+            {building ? (
+              <>
+                <span className="size-4 rounded-full border-2 border-deep/30 border-t-deep animate-spin" aria-hidden /> {t("b.loading")}
+              </>
+            ) : (
+              <>
+                {t("b.make")} <ArrowRight size={18} weight="bold" />
+              </>
+            )}
+          </button>
+          {buildError && (
+            <p role="alert" className="text-[#f3b9a5]">
+              {t("err.generic")}
+            </p>
+          )}
         </div>
-        <button className="btn bg-accent text-ink text-lg hover:brightness-105" onClick={build} disabled={building || !gap}>
-          {building ? t("b.loading") : `${t("b.make")} →`}
-        </button>
-        {buildError && <p className="text-accent">{t("err.generic")}</p>}
-      </section>
+      </motion.section>
     </div>
   );
 }

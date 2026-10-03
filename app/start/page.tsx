@@ -2,34 +2,70 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Bank,
+  Buildings,
+  Check,
+  Factory,
+  ForkKnife,
+  GraduationCap,
+  Heartbeat,
+  Laptop,
+  Leaf,
+  Mountains,
+  PaintBrush,
+  Plant,
+  Plus,
+  Smiley,
+  SmileyMeh,
+  SmileyNervous,
+  SmileyWink,
+  Storefront,
+  Tree,
+  Truck,
+  type Icon,
+} from "@phosphor-icons/react";
 import { db } from "@/lib/db";
 import { useI18n } from "@/lib/i18n";
 import type { Level, Profile, WorkMode } from "@/lib/types";
 
-const INDUSTRIES = ["tech", "finance", "health", "retail", "public", "creative", "education", "manufacturing", "hospitality", "logistics"];
-const IND_ICON: Record<string, string> = { tech: "💻", finance: "💶", health: "🩺", retail: "🛍️", public: "🏛️", creative: "🎨", education: "📚", manufacturing: "🏭", hospitality: "🍽️", logistics: "🚚" };
-const LEVELS: Level[] = ["junior", "mid", "senior", "lead"];
+const INDUSTRIES: [string, Icon][] = [
+  ["tech", Laptop],
+  ["finance", Bank],
+  ["health", Heartbeat],
+  ["retail", Storefront],
+  ["public", Buildings],
+  ["creative", PaintBrush],
+  ["education", GraduationCap],
+  ["manufacturing", Factory],
+  ["hospitality", ForkKnife],
+  ["logistics", Truck],
+];
+const LEVELS: [Level, Icon][] = [
+  ["junior", Plant],
+  ["mid", Leaf],
+  ["senior", Tree],
+  ["lead", Mountains],
+];
+const FEELINGS: Icon[] = [SmileyNervous, SmileyMeh, Smiley, SmileyWink];
 const SKILLS = ["problem", "coding", "data", "clients", "writing", "teaching", "design", "projects", "sales", "research", "leading", "numbers"];
 const ROLE_SUGGESTIONS = ["Software Developer", "Accountant", "Customer Support", "Marketing Executive", "Nurse", "Teacher", "Data Analyst", "Project Manager", "Graphic Designer", "Sales Representative"];
 const HOURS = [2, 5, 10, 15];
 const MODES: WorkMode[] = ["remote", "hybrid", "onsite", "any"];
-const AI_FACES = ["😟", "😐", "🙂", "🤩"];
 
 type Draft = Omit<Profile, "id" | "updatedAt">;
 const EMPTY: Draft = { name: "", role: "", industry: "", level: "mid", history: "", skills: [], aiFeeling: 3, hoursPerWeek: 5, country: "Ireland", city: "Dublin", workMode: "any" };
 
-function Knot({ step, total }: { step: number; total: number }) {
-  // Celtic-knot-ish progress: interlocking rings that fill in.
+const ease = [0.16, 1, 0.3, 1] as const;
+
+function Tick({ on }: { on: boolean }) {
   return (
-    <div className="flex items-center gap-1" aria-hidden="true">
-      {Array.from({ length: total }, (_, i) => (
-        <svg key={i} width="22" height="14" viewBox="0 0 22 14">
-          <ellipse cx="11" cy="7" rx="9" ry="5" fill="none" stroke={i <= step ? "var(--brand)" : "var(--line)"} strokeWidth="2.4" />
-          {i <= step && <circle cx="11" cy="7" r="2" fill="var(--accent)" />}
-        </svg>
-      ))}
-    </div>
+    <span className={`ml-auto grid place-items-center size-5 rounded-full border transition-colors ${on ? "bg-brand border-brand text-on-brand" : "border-line"}`} aria-hidden>
+      {on && <Check size={12} weight="bold" />}
+    </span>
   );
 }
 
@@ -53,13 +89,19 @@ export default function Survey() {
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((x) => ({ ...x, [k]: v }));
   const toggleSkill = (s: string) =>
     setD((x) => ({ ...x, skills: x.skills.includes(s) ? x.skills.filter((y) => y !== s) : x.skills.length >= 5 ? x.skills : [...x.skills, s] }));
+  const pickThenNext = (fn: () => void) => {
+    fn();
+    setTimeout(next, 260);
+  };
 
-  const cards: { key: string; title: string; sub?: string; body: ReactNode; required?: boolean; autoNext?: boolean }[] = [
+  const bigInput = "w-full bg-transparent text-3xl sm:text-4xl font-semibold tracking-tight outline-none border-b-2 border-line focus:border-brand pb-3 placeholder:text-muted/50";
+
+  const cards: { key: string; title: string; sub?: string; body: ReactNode; required?: boolean }[] = [
     {
       key: "name",
       title: t("s.name"),
       sub: t("s.name.sub"),
-      body: <input autoFocus className="w-full text-2xl font-serif bg-transparent border-b-2 border-line focus:border-brand outline-none py-2" placeholder={t("s.name.ph")} value={d.name} onChange={(e) => set("name", e.target.value)} onKeyDown={(e) => e.key === "Enter" && next()} />,
+      body: <input autoFocus aria-label={t("s.name")} className={bigInput} placeholder={t("s.name.ph")} value={d.name} onChange={(e) => set("name", e.target.value)} onKeyDown={(e) => e.key === "Enter" && next()} />,
     },
     {
       key: "role",
@@ -67,11 +109,11 @@ export default function Survey() {
       sub: t("s.role.sub"),
       required: true,
       body: (
-        <div className="space-y-4">
-          <input autoFocus className="w-full text-2xl font-serif bg-transparent border-b-2 border-line focus:border-brand outline-none py-2" placeholder={t("s.role.ph")} value={d.role} onChange={(e) => set("role", e.target.value)} onKeyDown={(e) => e.key === "Enter" && d.role && next()} />
+        <div className="space-y-6">
+          <input autoFocus aria-label={t("s.role")} className={bigInput} placeholder={t("s.role.ph")} value={d.role} onChange={(e) => set("role", e.target.value)} onKeyDown={(e) => e.key === "Enter" && d.role && next()} />
           <div className="flex flex-wrap gap-2">
             {ROLE_SUGGESTIONS.map((r) => (
-              <button key={r} className="chip" aria-pressed={d.role === r} onClick={() => set("role", r)}>
+              <button key={r} className="option rounded-full px-3.5 py-2 text-sm" aria-pressed={d.role === r} onClick={() => set("role", r)}>
                 {r}
               </button>
             ))}
@@ -83,12 +125,13 @@ export default function Survey() {
       key: "industry",
       title: t("s.industry"),
       required: true,
-      autoNext: true,
       body: (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {INDUSTRIES.map((i) => (
-            <button key={i} className="chip justify-start py-3 text-base" aria-pressed={d.industry === i} onClick={() => { set("industry", i); setTimeout(next, 220); }}>
-              <span aria-hidden>{IND_ICON[i]}</span> {t(`ind.${i}`)}
+        <div className="grid grid-cols-2 gap-2">
+          {INDUSTRIES.map(([key, I]) => (
+            <button key={key} className="option rounded-[14px] px-4 py-3.5 text-left" aria-pressed={d.industry === key} onClick={() => pickThenNext(() => set("industry", key))}>
+              <I size={22} className="text-brand shrink-0" />
+              <span>{t(`ind.${key}`)}</span>
+              <Tick on={d.industry === key} />
             </button>
           ))}
         </div>
@@ -98,12 +141,15 @@ export default function Survey() {
       key: "level",
       title: t("s.level"),
       body: (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {LEVELS.map((l, i) => (
-            <button key={l} className="chip flex-col items-start py-3 rounded-2xl" aria-pressed={d.level === l} onClick={() => { set("level", l); setTimeout(next, 220); }}>
-              <span className="text-lg" aria-hidden>{["🌱", "🌿", "🌳", "🏔️"][i]}</span>
-              <span>{t(`lvl.${l}`)}</span>
-              <span className="text-xs opacity-75 font-medium">{t(`lvl.${l}.d`)}</span>
+        <div className="grid grid-cols-2 gap-2">
+          {LEVELS.map(([l, I]) => (
+            <button key={l} className="option rounded-[14px] p-4 flex-col !items-start text-left" aria-pressed={d.level === l} onClick={() => pickThenNext(() => set("level", l))}>
+              <div className="flex w-full items-center">
+                <I size={26} className="text-brand" />
+                <Tick on={d.level === l} />
+              </div>
+              <span className="font-semibold">{t(`lvl.${l}`)}</span>
+              <span className="text-sm text-muted -mt-1.5">{t(`lvl.${l}.d`)}</span>
             </button>
           ))}
         </div>
@@ -113,24 +159,39 @@ export default function Survey() {
       key: "history",
       title: t("s.history"),
       sub: t("s.history.sub"),
-      body: <textarea className="w-full min-h-36 card p-4 outline-none focus:border-brand" placeholder={t("s.history.ph")} value={d.history} onChange={(e) => set("history", e.target.value)} />,
+      body: <textarea aria-label={t("s.history")} className="field min-h-44 text-base leading-relaxed" placeholder={t("s.history.ph")} value={d.history} onChange={(e) => set("history", e.target.value)} />,
     },
     {
       key: "skills",
       title: t("s.skills"),
       sub: t("s.skills.sub"),
       body: (
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
             {[...SKILLS.map((s) => t(`sk.${s}`)), ...d.skills.filter((s) => !SKILLS.some((k) => t(`sk.${k}`) === s))].map((s) => (
-              <button key={s} className="chip" aria-pressed={d.skills.includes(s)} onClick={() => toggleSkill(s)}>
+              <button key={s} className="option rounded-full px-3.5 py-2 text-sm" aria-pressed={d.skills.includes(s)} onClick={() => toggleSkill(s)}>
+                {d.skills.includes(s) && <Check size={14} weight="bold" className="text-brand" />}
                 {s}
               </button>
             ))}
           </div>
-          <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (customSkill.trim()) { toggleSkill(customSkill.trim()); setCustomSkill(""); } }}>
-            <input className="flex-1 card px-4 py-2 outline-none focus:border-brand" placeholder={t("s.skills.add")} value={customSkill} onChange={(e) => setCustomSkill(e.target.value)} />
-            <button className="btn btn-ghost">+</button>
+          <form
+            className="flex gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (customSkill.trim()) {
+                toggleSkill(customSkill.trim());
+                setCustomSkill("");
+              }
+            }}
+          >
+            <label className="sr-only" htmlFor="custom-skill">
+              {t("s.skills.add")}
+            </label>
+            <input id="custom-skill" className="field" placeholder={t("s.skills.add")} value={customSkill} onChange={(e) => setCustomSkill(e.target.value)} />
+            <button className="btn btn-quiet !px-4" aria-label={t("s.skills.add")}>
+              <Plus size={18} />
+            </button>
           </form>
         </div>
       ),
@@ -139,11 +200,11 @@ export default function Survey() {
       key: "ai",
       title: t("s.ai"),
       body: (
-        <div className="grid grid-cols-4 gap-2">
-          {AI_FACES.map((f, i) => (
-            <button key={i} className="chip flex-col py-4 rounded-2xl" aria-pressed={d.aiFeeling === i + 1} onClick={() => { set("aiFeeling", (i + 1) as Draft["aiFeeling"]); setTimeout(next, 220); }}>
-              <span className="text-3xl" aria-hidden>{f}</span>
-              <span className="text-sm">{t(`ai.${i + 1}`)}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {FEELINGS.map((I, i) => (
+            <button key={i} className="option rounded-[14px] flex-col py-5" aria-pressed={d.aiFeeling === i + 1} onClick={() => pickThenNext(() => set("aiFeeling", (i + 1) as Draft["aiFeeling"]))}>
+              <I size={34} weight={d.aiFeeling === i + 1 ? "fill" : "regular"} className="text-brand" />
+              <span className="text-sm font-medium">{t(`ai.${i + 1}`)}</span>
             </button>
           ))}
         </div>
@@ -155,8 +216,9 @@ export default function Survey() {
       body: (
         <div className="grid grid-cols-4 gap-2">
           {HOURS.map((h) => (
-            <button key={h} className="chip justify-center py-4 text-lg rounded-2xl" aria-pressed={d.hoursPerWeek === h} onClick={() => { set("hoursPerWeek", h); setTimeout(next, 220); }}>
-              {t("s.hours.n", { n: h === 15 ? "15+" : h })}
+            <button key={h} className="option rounded-[14px] flex-col py-5" aria-pressed={d.hoursPerWeek === h} onClick={() => pickThenNext(() => set("hoursPerWeek", h))}>
+              <span className="font-mono text-3xl font-medium">{h === 15 ? "15+" : h}</span>
+              <span className="text-xs text-muted">{t("s.hours.n", { n: "" }).trim()}</span>
             </button>
           ))}
         </div>
@@ -166,34 +228,35 @@ export default function Survey() {
       key: "where",
       title: t("s.where"),
       body: (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="grid grid-cols-2 gap-3">
-            <label className="space-y-1">
-              <span className="text-sm text-muted font-semibold">{t("s.country")}</span>
-              <input className="w-full card px-4 py-2.5 outline-none focus:border-brand" value={d.country} onChange={(e) => set("country", e.target.value)} />
+            <label className="space-y-2 block">
+              <span className="text-sm font-medium">{t("s.country")}</span>
+              <input className="field" value={d.country} onChange={(e) => set("country", e.target.value)} />
             </label>
-            <label className="space-y-1">
-              <span className="text-sm text-muted font-semibold">{t("s.city")}</span>
-              <input className="w-full card px-4 py-2.5 outline-none focus:border-brand" value={d.city} onChange={(e) => set("city", e.target.value)} />
+            <label className="space-y-2 block">
+              <span className="text-sm font-medium">{t("s.city")}</span>
+              <input className="field" value={d.city} onChange={(e) => set("city", e.target.value)} />
             </label>
           </div>
-          <div>
-            <div className="text-sm text-muted font-semibold mb-2">{t("s.mode")}</div>
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium mb-2">{t("s.mode")}</legend>
             <div className="flex flex-wrap gap-2">
               {MODES.map((m) => (
-                <button key={m} className="chip" aria-pressed={d.workMode === m} onClick={() => set("workMode", m)}>
+                <button key={m} className="option rounded-full px-4 py-2 text-sm" aria-pressed={d.workMode === m} onClick={() => set("workMode", m)}>
                   {t(`mode.${m}`)}
                 </button>
               ))}
             </div>
-          </div>
+          </fieldset>
         </div>
       ),
     },
   ];
 
   const total = cards.length;
-  const card = cards[step];
+  const done = step >= total;
+  const card = cards[Math.min(step, total - 1)];
   const isLast = step === total - 1;
   const canNext = !card.required || Boolean(d[card.key as keyof Draft]);
 
@@ -212,73 +275,115 @@ export default function Survey() {
     router.push("/pulse");
   }
 
-  if (step >= total) {
-    return (
-      <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} className="max-w-xl mx-auto card p-8 space-y-5 text-center">
-        <div className="text-5xl" aria-hidden>🌉</div>
-        <h1 className="text-3xl font-bold">{t("s.profile")}</h1>
-        <div className="flex flex-wrap justify-center gap-2">
-          {d.name && <span className="chip">👋 {d.name}</span>}
-          <span className="chip">💼 {d.role || "—"}</span>
-          {d.industry && <span className="chip">{IND_ICON[d.industry]} {t(`ind.${d.industry}`)}</span>}
-          <span className="chip">{t(`lvl.${d.level}`)}</span>
-          <span className="chip">📍 {d.city}, {d.country}</span>
-          <span className="chip">⏱ {t("s.hours.n", { n: d.hoursPerWeek })}</span>
-          <span className="chip">{AI_FACES[d.aiFeeling - 1]} {t(`ai.${d.aiFeeling}`)}</span>
-          {d.skills.map((s) => (
-            <span key={s} className="chip">{s}</span>
-          ))}
-        </div>
-        <div className="flex justify-center gap-3 pt-2">
-          <button className="btn btn-ghost" onClick={() => { setDir(-1); setStep(0); }}>
-            {t("s.profile.edit")}
-          </button>
-          <button className="btn btn-primary" onClick={finish} disabled={!d.role}>
-            {t("s.finish")} →
-          </button>
-        </div>
-      </motion.div>
-    );
-  }
+  const industryIcon = INDUSTRIES.find(([k]) => k === d.industry)?.[1];
+  const FeelingIcon = FEELINGS[d.aiFeeling - 1];
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <Knot step={step} total={total} />
-        <span className="text-sm text-muted font-semibold">{t("s.step", { n: step + 1, total })}</span>
+    <div className="max-w-5xl mx-auto pt-8 sm:pt-14 min-h-[70dvh]">
+      {/* Segmented progress */}
+      <div className="flex items-center gap-4 mb-10">
+        <div className="flex-1 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))` }} aria-hidden>
+          {cards.map((c, i) => (
+            <div key={c.key} className="h-1 rounded-full bg-line overflow-hidden">
+              <motion.div className="h-full bg-brand origin-left" initial={false} animate={{ scaleX: i < step || done ? 1 : i === step ? 0.5 : 0 }} transition={{ duration: 0.4, ease }} />
+            </div>
+          ))}
+        </div>
+        <span className="font-mono text-sm text-muted tabular-nums">{t("s.step", { n: Math.min(step + 1, total), total })}</span>
       </div>
-      <div className="relative min-h-[380px]">
-        <AnimatePresence mode="wait" custom={dir}>
+
+      <AnimatePresence mode="wait" custom={dir}>
+        {done ? (
+          <motion.section key="summary" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, ease }} className="grid lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-5 space-y-3">
+              <h1 className="text-4xl sm:text-5xl font-semibold leading-[1.05]">{t("s.profile")}</h1>
+              <p className="text-muted">{t("s.profile.sub")}</p>
+            </div>
+            <div className="lg:col-span-7 panel p-6 sm:p-8 space-y-6">
+              <div>
+                <div className="text-2xl font-semibold">
+                  {d.name ? `${d.name}, ` : ""}
+                  {d.role || "Professional"}
+                </div>
+                <div className="text-muted mt-1 flex items-center gap-2">
+                  {industryIcon && (() => {
+                    const I = industryIcon;
+                    return <I size={18} className="text-brand" />;
+                  })()}
+                  {[d.industry && t(`ind.${d.industry}`), t(`lvl.${d.level}`), `${d.city}, ${d.country}`].filter(Boolean).join(", ")}
+                </div>
+              </div>
+              <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                <div>
+                  <dt className="text-muted">{t("s.hours")}</dt>
+                  <dd className="font-mono text-lg">{d.hoursPerWeek}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted">{t("s.ai")}</dt>
+                  <dd className="flex items-center gap-1.5 font-medium">
+                    <FeelingIcon size={18} className="text-brand" /> {t(`ai.${d.aiFeeling}`)}
+                  </dd>
+                </div>
+              </dl>
+              {d.skills.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {d.skills.map((s) => (
+                    <span key={s} className="rounded-full bg-brand-soft px-3 py-1 text-sm font-medium">
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex flex-wrap gap-3 pt-2">
+                <button className="btn btn-primary" onClick={finish} disabled={!d.role}>
+                  {t("s.finish")} <ArrowRight size={18} weight="bold" />
+                </button>
+                <button
+                  className="btn btn-quiet"
+                  onClick={() => {
+                    setDir(-1);
+                    setStep(0);
+                  }}
+                >
+                  {t("s.profile.edit")}
+                </button>
+              </div>
+            </div>
+          </motion.section>
+        ) : (
           <motion.section
             key={card.key}
             custom={dir}
-            initial={{ opacity: 0, x: dir * 40, rotate: dir * 1.5 }}
-            animate={{ opacity: 1, x: 0, rotate: 0 }}
-            exit={{ opacity: 0, x: dir * -40, rotate: dir * -1.5 }}
-            transition={{ duration: 0.22 }}
-            className="card p-6 sm:p-8 space-y-5 shadow-[0_10px_30px_-15px_rgba(8,72,58,0.35)]"
+            initial={{ opacity: 0, x: dir * 32 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: dir * -32 }}
+            transition={{ duration: 0.32, ease }}
+            className="grid lg:grid-cols-12 gap-8 lg:gap-12"
           >
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-bold">{card.title}</h1>
-              {card.sub && <p className="text-muted">{card.sub}</p>}
+            <div className="lg:col-span-5 space-y-3">
+              <h1 className="text-3xl sm:text-[2.6rem] font-semibold leading-[1.08]">{card.title}</h1>
+              {card.sub && <p className="text-muted text-lg max-w-[40ch]">{card.sub}</p>}
             </div>
-            {card.body}
+            <div className="lg:col-span-7">{card.body}</div>
           </motion.section>
-        </AnimatePresence>
-      </div>
-      <div className="flex items-center gap-3">
-        <button className="btn btn-ghost" onClick={back} disabled={step === 0}>
-          ← {t("s.back")}
-        </button>
-        {!card.required && !isLast && (
-          <button className="text-muted font-semibold underline underline-offset-4 px-2" onClick={next}>
-            {t("s.skip")}
-          </button>
         )}
-        <button className="btn btn-primary ml-auto" onClick={next} disabled={!canNext}>
-          {isLast ? t("s.finish") : t("s.next")} →
-        </button>
-      </div>
+      </AnimatePresence>
+
+      {!done && (
+        <div className="mt-12 flex items-center gap-3">
+          <button className="btn btn-quiet" onClick={back} disabled={step === 0}>
+            <ArrowLeft size={16} /> {t("s.back")}
+          </button>
+          {!card.required && !isLast && (
+            <button className="px-3 text-sm font-medium text-muted hover:text-ink" onClick={next}>
+              {t("s.skip")}
+            </button>
+          )}
+          <button className="btn btn-primary ml-auto" onClick={next} disabled={!canNext}>
+            {isLast ? t("s.finish") : t("s.next")} <ArrowRight size={16} weight="bold" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

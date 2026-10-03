@@ -2,8 +2,11 @@
 
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
+import { DownloadSimple, GithubLogo, LockSimple, Trash, UploadSimple } from "@phosphor-icons/react";
 import { exportAll, importAll, wipeAll } from "@/lib/db";
 import { useI18n } from "@/lib/i18n";
+import { IMAGES } from "@/lib/images";
+import { Mark } from "./Header";
 
 export function Footer() {
   const { t } = useI18n();
@@ -33,26 +36,49 @@ export function Footer() {
     router.push("/");
   }
 
+  const small = "inline-flex items-center gap-1.5 rounded-full border border-line px-3 h-8 text-xs font-medium hover:border-ink/40";
+
   return (
-    <footer className="border-t border-line mt-10">
-      <div className="wave" aria-hidden="true" />
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row gap-4 sm:items-center text-sm text-muted">
-        <p className="flex-1">
-          🔒 {t("f.private")}
-          <br />
-          <span className="text-xs">{t("f.disclaimer")}</span>
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <button className="btn btn-ghost text-xs py-1.5 px-3" onClick={doExport}>
-            {t("f.export")}
-          </button>
-          <button className="btn btn-ghost text-xs py-1.5 px-3" onClick={() => file.current?.click()}>
-            {t("f.import")}
-          </button>
-          <input ref={file} type="file" accept="application/json" hidden onChange={(e) => e.target.files?.[0] && doImport(e.target.files[0])} />
-          <button className="btn btn-ghost text-xs py-1.5 px-3 text-warm" onClick={doWipe}>
-            {t("f.wipe")}
-          </button>
+    <footer className="mt-24 border-t border-line">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid gap-8 md:grid-cols-12">
+        <div className="md:col-span-5 space-y-3">
+          <div className="flex items-center gap-2.5">
+            <Mark />
+            <span className="font-semibold">Droichead</span>
+          </div>
+          <p className="text-sm text-muted max-w-[42ch]">{t("brand.tagline")}</p>
+          <a href="https://github.com/MuhammadMurtuzaHussain/Droichead" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-brand">
+            <GithubLogo size={16} /> {t("f.source")}
+          </a>
+        </div>
+        <div className="md:col-span-7 space-y-4">
+          <p className="flex items-start gap-2 text-sm">
+            <LockSimple size={18} className="mt-0.5 shrink-0 text-brand" />
+            <span>{t("f.private")}</span>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button className={small} onClick={doExport}>
+              <DownloadSimple size={14} /> {t("f.export")}
+            </button>
+            <button className={small} onClick={() => file.current?.click()}>
+              <UploadSimple size={14} /> {t("f.import")}
+            </button>
+            <input ref={file} type="file" accept="application/json" hidden onChange={(e) => e.target.files?.[0] && doImport(e.target.files[0])} />
+            <button className={`${small} text-peat`} onClick={doWipe}>
+              <Trash size={14} /> {t("f.wipe")}
+            </button>
+          </div>
+          <p className="text-xs text-muted">{t("f.disclaimer")}</p>
+          <p className="text-xs text-muted">
+            {Object.values(IMAGES).map((img, i) => (
+              <span key={img.page}>
+                {i > 0 && ". "}
+                <a href={img.page} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                  {img.credit}
+                </a>
+              </span>
+            ))}
+          </p>
         </div>
       </div>
     </footer>

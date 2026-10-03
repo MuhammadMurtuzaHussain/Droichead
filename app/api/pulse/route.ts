@@ -34,11 +34,11 @@ export async function POST(req: Request) {
 
   if (!hasModel()) {
     const f = fixture ?? FIXTURES.aoife;
-    return Response.json({ news: rawNews, roleShifts: f.roleShifts, economy: f.economy, roles: f.roles.map((r) => ({ ...r, slug: slugify(r.title) })), offline: true } satisfies Pulse & { offline: boolean });
+    return Response.json({ news: rawNews, roleShifts: f.roleShifts, economy: f.economy, roles: [...f.roles].sort((a, b) => b.matchPct - a.matchPct).map((r) => ({ ...r, slug: slugify(r.title) })), offline: true } satisfies Pulse & { offline: boolean });
   }
 
   const who = describe(profile);
-  const articleList = articles.map((a, i) => `[${i}] ${a.title} — ${a.domain} (${a.country}, ${a.date})`).join("\n");
+  const articleList = articles.map((a, i) => `[${i}] ${a.title} | ${a.domain} (${a.country}, ${a.date})`).join("\n");
 
   const newsCall = chatJSON({
     locale,
