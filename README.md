@@ -71,6 +71,15 @@ Next.js route handlers (stateless, store nothing)
 Ollama on localhost (open-weight Gemma 4 12B)
 ```
 
+## Deploy on Render
+
+The repo includes a Render Blueprint (`render.yaml`):
+
+1. In Render, choose **New > Blueprint** and connect this repo.
+2. When prompted, paste your Google AI Studio key as `GOOGLE_API_KEY`.
+
+Render builds the app with `npm ci && npm run build` and starts it with `npm start`. The health check is `/api/health`.
+
 ## Run locally
 
 ```bash

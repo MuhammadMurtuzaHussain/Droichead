@@ -1,0 +1,19 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: droichead
+    runtime: node
+    plan: free
+    region: frankfurt # closest Render region to Dublin
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      # Google AI Studio key for open-weight Gemma 4. Render asks for it when you create the Blueprint.
+      - key: GOOGLE_API_KEY
+        sync: false
