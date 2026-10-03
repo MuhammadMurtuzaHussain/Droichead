@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight, ArrowUpRight, Briefcase, CalendarPlus, Check, Clock, Copy, Fire, Hammer, LinkedinLogo, MapPin, Printer, Sparkle, Trash } from "@phosphor-icons/react";
+import { ArrowRight, ArrowUpRight, ArrowsClockwise, Briefcase, CalendarPlus, Check, Clock, Copy, Fire, Hammer, LinkedinLogo, MapPin, Printer, Sparkle, Trash } from "@phosphor-icons/react";
 import { RESOURCE_BY_ID } from "@/data/resources";
 import { celebrate, streak } from "@/lib/celebrate";
 import { ListenButton } from "@/components/Voice";
-import { db } from "@/lib/db";
+import { db, getCached, setCached } from "@/lib/db";
 import { postJSON, profileForApi } from "@/lib/api";
 import { downloadIcs, weekStart } from "@/lib/ics";
 import { useI18n } from "@/lib/i18n";
 import { eventLinks, jobLinks, linkedInShareUrl } from "@/lib/links";
-import type { Plan, Post, Profile } from "@/lib/types";
+import type { CheckIn, Plan, Post, Profile } from "@/lib/types";
 
 const TABS = ["timeline", "resources", "jobs", "posts", "events"] as const;
 type Tab = (typeof TABS)[number];
@@ -208,6 +208,7 @@ function PlanView({ plan, plans, profile, tab, setTab, onSelect }: { plan: Plan;
                 <p className="text-[15px] leading-relaxed">{plan.project.brief}</p>
                 {done === 0 && <p className="text-sm text-muted border-t border-ink/10 pt-3">{t("pl.nudge")}</p>}
               </section>
+              <CheckInCard plan={plan} profile={profile} currentWeek={currentWeek} />
               <button
                 onClick={async () => {
                   if (confirm(`${t("pl.delete")}?`)) await db.plans.delete(plan.id);
@@ -225,6 +226,90 @@ function PlanView({ plan, plans, profile, tab, setTab, onSelect }: { plan: Plan;
         {tab === "events" && <Events plan={plan} profile={profile} />}
       </motion.div>
     </div>
+  );
+}
+
+function CheckInCard({ plan, profile, currentWeek }: { plan: Plan; profile: Profile; currentWeek: number }) {
+  const { t, locale, formatDate } = useI18n();
+  const [status, setStatus] = useState<CheckIn["status"]>("on");
+  const [hours, setHours] = useState(profile.hoursPerWeek);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [moved, setMoved] = useState<number | null>(null);
+  const last = plan.checkins?.at(-1);
+
+  async function submit() {
+    setBusy(true);
+    setMoved(null);
+    try {
+      const res = await postJSON<{ moves: { id: string; week: number }[]; message: string; nextStep: { title: string; minutes: number } | null }>("/api/replan", {
+        locale,
+        name: profile.name,
+        roleTitle: plan.roleTitle,
+        currentWeek,
+        totalWeeks: plan.totalWeeks,
+        doneCount: plan.tasks.filter((x) => x.done).length,
+        tasks: plan.tasks.map(({ id, title, week, minutes, done }) => ({ id, title, week, minutes, done })),
+        checkin: { status, hours, note: note || undefined },
+      });
+      const weekOf = new Map(res.moves.map((m) => [m.id, m.week]));
+      const phaseNow = Math.max(0, plan.phases.findIndex((ph) => currentWeek >= ph.startWeek && currentWeek <= ph.endWeek));
+      const tasks = plan.tasks.map((x) => (weekOf.has(x.id) ? { ...x, week: weekOf.get(x.id)! } : x));
+      if (res.nextStep) tasks.push({ id: `ci-${Date.now()}`, phaseIndex: phaseNow, week: currentWeek, title: res.nextStep.title, minutes: res.nextStep.minutes, done: false });
+      const entry: CheckIn = { at: Date.now(), week: currentWeek, status, hours, note: note || undefined, message: res.message || t("ci.done") };
+      await db.plans.update(plan.id, { tasks, checkins: [...(plan.checkins ?? []), entry] });
+      setMoved(res.moves.length);
+      setNote("");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="panel p-6 space-y-5">
+      <div className="space-y-1">
+        <h2 className="font-semibold flex items-center gap-2">
+          <ArrowsClockwise size={20} className="text-brand" /> {t("ci.title")}
+        </h2>
+        <p className="text-sm text-muted">{t("ci.sub")}</p>
+      </div>
+      {last && (
+        <motion.div key={last.at} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }} className="rounded-2xl bg-brand/10 p-4 space-y-1" role="status">
+          <p className="text-[15px] leading-relaxed">{last.message}</p>
+          <p className="text-xs text-muted">
+            {t("ci.last", { date: formatDate(new Date(last.at).toISOString(), { day: "numeric", month: "short" }) })}
+          </p>
+        </motion.div>
+      )}
+      <fieldset className="space-y-2">
+        <legend className="sr-only">{t("ci.title")}</legend>
+        <div className="flex flex-wrap gap-2">
+          {(["on", "behind", "way"] as const).map((k) => (
+            <button key={k} type="button" aria-pressed={status === k} onClick={() => setStatus(k)} className="option rounded-full px-3.5 h-9 text-sm">
+              {t(`ci.${k}`)}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+      <fieldset className="space-y-2">
+        <legend className="text-sm text-muted mb-2">{t("ci.hours")}</legend>
+        <div className="flex gap-2">
+          {[2, 5, 10, 15].map((h) => (
+            <button key={h} type="button" aria-pressed={hours === h} onClick={() => setHours(h)} className="option rounded-full px-3.5 h-9 text-sm font-mono">
+              {h}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+      <label className="block space-y-2">
+        <span className="text-sm text-muted">{t("ci.note")}</span>
+        <input className="field !py-2.5 text-sm" value={note} onChange={(e) => setNote(e.target.value)} />
+      </label>
+      <button className="group btn btn-primary btn-island w-full justify-between" onClick={submit} disabled={busy}>
+        {busy ? t("ci.loading") : t("ci.submit")}
+        <span className="btn-orb">{busy ? <span className="size-3.5 rounded-full border-2 border-on-brand/30 border-t-on-brand animate-spin" /> : <ArrowRight size={16} weight="bold" />}</span>
+      </button>
+    </section>
   );
 }
 
@@ -268,20 +353,98 @@ function LinkTiles({ links, label }: { links: { site: string; url: string; remot
   );
 }
 
+type LiveJob = { title: string; company: string; location: string; url: string; postedAt: number; source: string; remote: boolean };
+
 function Jobs({ plan, profile }: { plan: Plan; profile: Profile }) {
   const { t } = useI18n();
+  const [jobs, setJobs] = useState<LiveJob[] | null>(null);
+  useEffect(() => {
+    let live = true;
+    const key = `jobs:${plan.roleTitle}`;
+    (async () => {
+      const hit = await getCached<LiveJob[]>(key, 30 * 60 * 1000);
+      if (hit) return live && setJobs(hit);
+      try {
+        const res = await postJSON<{ jobs: LiveJob[] }>("/api/jobs", { role: plan.roleTitle });
+        await setCached(key, res.jobs);
+        if (live) setJobs(res.jobs);
+      } catch {
+        if (live) setJobs([]);
+      }
+    })();
+    return () => {
+      live = false;
+    };
+  }, [plan.roleTitle]);
+
+  const ago = (ms: number) => {
+    const h = Math.max(1, Math.round((Date.now() - ms) / 36e5));
+    return h < 48 ? t("jobs.ago.h", { n: h }) : t("jobs.ago.d", { n: Math.round(h / 24) });
+  };
+
   return (
-    <section className="space-y-6 max-w-4xl">
+    <section className="space-y-10 max-w-4xl">
       <div className="space-y-2">
         <h2 className="text-2xl sm:text-3xl font-semibold flex items-center gap-2.5">
           <Briefcase size={26} className="text-brand" /> {t("jobs.title")}
         </h2>
         <p className="text-muted max-w-[60ch]">{t("jobs.sub")}</p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <span className="relative flex size-2.5" aria-hidden>
+              <span className="absolute inline-flex size-full rounded-full bg-brand opacity-60 animate-ping" />
+              <span className="relative inline-flex size-2.5 rounded-full bg-brand" />
+            </span>
+            {t("jobs.live")}
+          </h3>
+          <span className="text-xs text-muted">{t("jobs.src")}</span>
+        </div>
+        {!jobs && (
+          <div className="grid sm:grid-cols-2 gap-3" aria-busy="true">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="panel p-5 space-y-2">
+                <div className="skeleton h-4 w-3/4" />
+                <div className="skeleton h-3 w-1/2" />
+              </div>
+            ))}
+          </div>
+        )}
+        {jobs && jobs.length === 0 && <p className="panel p-5 text-muted">{t("jobs.none")}</p>}
+        {jobs && jobs.length > 0 && (
+          <ul className="grid sm:grid-cols-2 gap-3">
+            {jobs.map((j, i) => (
+              <motion.li key={j.url} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease, delay: i * 0.05 }}>
+                <a href={j.url} target="_blank" rel="noopener noreferrer" className="group panel h-full p-5 flex flex-col gap-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="font-semibold leading-snug">{j.title}</span>
+                    <ArrowUpRight size={18} className="shrink-0 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand" />
+                  </div>
+                  <span className="text-sm text-muted">
+                    {j.company}
+                    {j.location ? `, ${j.location}` : ""}
+                  </span>
+                  <span className="mt-auto flex items-center gap-2 text-xs">
+                    <span className={`rounded-full px-2 py-0.5 font-mono ${Date.now() - j.postedAt <= 48 * 36e5 ? "bg-brand/15 text-brand" : "bg-white/5 text-muted"}`}>{ago(j.postedAt)}</span>
+                    <span className="text-muted">{j.source}</span>
+                    {j.remote && <span className="text-muted">{t("mode.remote")}</span>}
+                  </span>
+                </a>
+              </motion.li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">{t("jobs.searches")}</h3>
         <p className="text-sm font-mono text-muted">
           {plan.roleTitle}, {profile.city}, {profile.country}
         </p>
+        <LinkTiles links={jobLinks(plan.roleTitle, profile)} label={(site) => t("jobs.on", { site })} />
       </div>
-      <LinkTiles links={jobLinks(plan.roleTitle, profile)} label={(site) => t("jobs.on", { site })} />
     </section>
   );
 }
