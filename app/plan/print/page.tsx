@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
+import QRCode from "qrcode";
 import { ArrowLeft, Bridge, Printer } from "@phosphor-icons/react";
 import { RESOURCE_BY_ID } from "@/data/resources";
 import { db } from "@/lib/db";
@@ -108,6 +109,22 @@ export default function PrintPlanner() {
   useEffect(() => setId(new URLSearchParams(window.location.search).get("id")), []);
   const plans = useLiveQuery(() => db.plans.orderBy("createdAt").reverse().toArray());
   const plan = plans?.find((p) => p.id === id) ?? plans?.[0];
+
+  // QR codes so a printed poster links straight to each course.
+  const [qrs, setQrs] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (!plan) return;
+    let live = true;
+    Promise.all(
+      plan.resourceIds
+        .map((rid) => RESOURCE_BY_ID[rid])
+        .filter(Boolean)
+        .map(async (r) => [r.id, await QRCode.toDataURL(r.url, { margin: 0, width: 260, errorCorrectionLevel: "M", color: { dark: INK, light: "#ffffff" } })] as const),
+    ).then((pairs) => live && setQrs(Object.fromEntries(pairs)));
+    return () => {
+      live = false;
+    };
+  }, [plan]);
 
   const { months, tasksByDay } = useMemo(() => {
     const tasksByDay = new Map<string, number>();
@@ -286,6 +303,38 @@ export default function PrintPlanner() {
               ))}
             </div>
           </div>
+        </Sheet>
+
+        {/* Sheet 4: scan-to-open resources */}
+        <Sheet>
+          <SheetHeader title={t("print.resources")} plan={plan} />
+          <div className="grid grid-cols-3 gap-5">
+            {plan.resourceIds
+              .map((rid) => RESOURCE_BY_ID[rid])
+              .filter(Boolean)
+              .map((r) => (
+                <div key={r.id} className="rounded-[10px] p-4 flex flex-col gap-3 break-inside-avoid" style={{ boxShadow: `inset 0 0 0 1px ${RULE}` }}>
+                  {qrs[r.id] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={qrs[r.id]} alt={`${t("print.scan")}: ${r.title}`} className="w-[32mm] h-[32mm]" />
+                  ) : (
+                    <div className="w-[32mm] h-[32mm]" style={{ background: "#f1f4f2" }} />
+                  )}
+                  <div>
+                    <div className="text-[13px] font-semibold leading-snug">{r.title}</div>
+                    <div className="text-[11px]" style={{ color: MUTED }}>
+                      {r.provider}
+                    </div>
+                    <div className="mt-1 text-[10px] uppercase tracking-[0.14em]" style={{ color: PHASE[0] }}>
+                      {t("print.scan")}
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+          <p className="mt-auto pt-8 text-center text-sm" style={{ color: MUTED }}>
+            {t("print.footer")}
+          </p>
         </Sheet>
       </div>
     </div>

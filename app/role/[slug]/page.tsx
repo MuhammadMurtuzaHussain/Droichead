@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight, CheckCircle, Circle, CircleHalf, Clock, Sun, TrendUp, type Icon } from "@phosphor-icons/react";
+import { ArrowLeft, ArrowRight, Check, CheckCircle, Circle, CircleHalf, Clock, Sun, TrendUp, type Icon } from "@phosphor-icons/react";
 import { db, getCached, setCached } from "@/lib/db";
 import { isoDate, postJSON, profileForApi } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
@@ -35,6 +35,33 @@ function GapColumn({ title, items, tone, icon: I, delay }: { title: string; item
         ))}
       </ul>
     </motion.div>
+  );
+}
+
+/** Staged progress while the plan is generated, so the wait reads as work being done. */
+function BuildStages() {
+  const { t } = useI18n();
+  const [stage, setStage] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setStage((s) => Math.min(s + 1, 3)), 4500);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="space-y-4 pt-2" role="status" aria-live="polite">
+      <div className="h-1 rounded-full bg-white/10 overflow-hidden">
+        <motion.div className="h-full rounded-full bg-brand origin-left" initial={{ scaleX: 0.04 }} animate={{ scaleX: 0.92 }} transition={{ duration: 26, ease: [0.1, 0.7, 0.3, 1] }} />
+      </div>
+      <ol className="space-y-2.5">
+        {[1, 2, 3, 4].map((n, i) => (
+          <motion.li key={n} className="flex items-center gap-3 text-sm" initial={{ opacity: 0, x: -8 }} animate={{ opacity: i <= stage ? 1 : 0.35, x: 0 }} transition={{ duration: 0.5, ease }}>
+            <span className={`grid place-items-center size-5 rounded-full transition-colors duration-500 ${i < stage ? "bg-brand text-on-brand" : i === stage ? "ring-2 ring-brand" : "ring-1 ring-white/20"}`}>
+              {i < stage ? <Check size={11} weight="bold" /> : i === stage ? <span className="size-1.5 rounded-full bg-brand animate-pulse" /> : null}
+            </span>
+            {t(`b.stage.${n}`)}
+          </motion.li>
+        ))}
+      </ol>
+    </div>
   );
 }
 
@@ -212,6 +239,7 @@ export default function RolePage() {
               </>
             )}
           </button>
+          {building && <BuildStages />}
           {buildError && (
             <p role="alert" className="text-[#f3b9a5]">
               {t("err.generic")}

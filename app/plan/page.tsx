@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { motion } from "motion/react";
-import { ArrowRight, ArrowUpRight, Briefcase, CalendarPlus, Check, Clock, Copy, Hammer, LinkedinLogo, MapPin, Printer, Sparkle, Trash } from "@phosphor-icons/react";
+import { AnimatePresence, motion } from "motion/react";
+import { ArrowRight, ArrowUpRight, Briefcase, CalendarPlus, Check, Clock, Copy, Fire, Hammer, LinkedinLogo, MapPin, Printer, Sparkle, Trash } from "@phosphor-icons/react";
 import { RESOURCE_BY_ID } from "@/data/resources";
+import { celebrate, streak } from "@/lib/celebrate";
 import { db } from "@/lib/db";
 import { postJSON, profileForApi } from "@/lib/api";
 import { downloadIcs, weekStart } from "@/lib/ics";
@@ -45,12 +46,34 @@ function PlanView({ plan, plans, profile, tab, setTab, onSelect }: { plan: Plan;
   const pct = plan.tasks.length ? Math.round((done / plan.tasks.length) * 100) : 0;
   const currentWeek = Math.min(plan.totalWeeks, Math.max(1, Math.floor((Date.now() - Date.parse(plan.startDate)) / (7 * 864e5)) + 1));
 
-  async function toggle(id: string) {
-    await db.plans.update(plan.id, { tasks: plan.tasks.map((x) => (x.id === id ? { ...x, done: !x.done } : x)) });
+  const [toast, setToast] = useState<string | null>(null);
+  const weeksInRow = streak(plan);
+
+  async function toggle(id: string, el: Element | null) {
+    const tasks = plan.tasks.map((x) => (x.id === id ? { ...x, done: !x.done, doneAt: !x.done ? Date.now() : undefined } : x));
+    await db.plans.update(plan.id, { tasks });
+    const task = tasks.find((x) => x.id === id)!;
+    if (!task.done) return;
+    const phaseDone = tasks.filter((x) => x.phaseIndex === task.phaseIndex).every((x) => x.done);
+    const allDone = tasks.every((x) => x.done);
+    celebrate(el, allDone ? "all" : phaseDone ? "phase" : "task");
+    if (allDone || phaseDone) {
+      setToast(t(allDone ? "pl.allDone" : "pl.phaseDone"));
+      setTimeout(() => setToast(null), 3200);
+    }
   }
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 space-y-10">
+      <AnimatePresence>
+        {toast && (
+          <motion.div role="status" className="fixed bottom-6 inset-x-0 z-30 flex justify-center px-4 pointer-events-none" initial={{ opacity: 0, y: 30, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.5, ease }}>
+            <div className="rounded-full bg-brand text-on-brand px-5 py-3 font-semibold shadow-[0_20px_50px_-15px_rgb(82_211_162/0.7)] flex items-center gap-2">
+              <Sparkle size={18} weight="fill" /> {toast}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <header className="rounded-[28px] core-brand !rounded-[28px] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)] text-on-deep p-7 sm:p-10 space-y-8">
         <div className="flex flex-wrap items-start gap-6">
           <div className="flex-1 min-w-[260px] space-y-3">
@@ -78,7 +101,14 @@ function PlanView({ plan, plans, profile, tab, setTab, onSelect }: { plan: Plan;
         <div className="grid sm:grid-cols-12 gap-6 items-end">
           <div className="sm:col-span-8 space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-on-deep/70">{t("pl.progress", { week: currentWeek, total: plan.totalWeeks })}</span>
+              <span className="text-on-deep/70 flex items-center gap-3">
+                {t("pl.progress", { week: currentWeek, total: plan.totalWeeks })}
+                {weeksInRow > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gorse/15 text-gorse px-2.5 py-0.5 text-xs font-semibold">
+                    <Fire size={13} weight="fill" /> {t("pl.streak", { n: weeksInRow })}
+                  </span>
+                )}
+              </span>
               <span className="font-mono">{t("pl.done", { pct })}</span>
             </div>
             <div className="h-1.5 rounded-full bg-on-deep/15 overflow-hidden">
@@ -134,7 +164,7 @@ function PlanView({ plan, plans, profile, tab, setTab, onSelect }: { plan: Plan;
                           return (
                             <li key={task.id}>
                               <label className={`flex items-start gap-3 rounded-[14px] border p-4 cursor-pointer transition-colors ${task.done ? "border-transparent bg-surface-2" : "border-line bg-surface hover:border-brand/50"}`}>
-                                <input type="checkbox" checked={task.done} onChange={() => toggle(task.id)} className="peer sr-only" />
+                                <input type="checkbox" checked={task.done} onChange={(e) => toggle(task.id, e.currentTarget.parentElement)} className="peer sr-only" />
                                 <span className={`mt-0.5 grid place-items-center size-5 shrink-0 rounded-md border-2 transition-colors peer-focus-visible:ring-2 ring-brand ring-offset-2 ${task.done ? "bg-brand border-brand text-on-brand" : "border-line"}`} aria-hidden>
                                   {task.done && <Check size={12} weight="bold" />}
                                 </span>

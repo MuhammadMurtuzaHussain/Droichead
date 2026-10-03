@@ -92,6 +92,7 @@ export interface PlanTask {
   minutes: number;
   resourceId?: string;
   done: boolean;
+  doneAt?: number;
 }
 
 export interface Post {
@@ -112,7 +113,17 @@ export interface Plan {
   project: { title: string; brief: string };
   resourceIds: string[];
   posts?: Post[];
+  checkins?: CheckIn[];
   createdAt: number;
+}
+
+export interface CheckIn {
+  at: number;
+  week: number;
+  status: "on" | "behind" | "way";
+  hours: number;
+  note?: string;
+  message: string;
 }
 
 export interface CachedItem<T = unknown> {
