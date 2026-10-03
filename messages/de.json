@@ -37,7 +37,7 @@
   "demo.open": "Diesen Puls öffnen",
   "home.trust.title": "Privat by Design. Offen als Standard.",
   "home.trust.1": "Kein Konto, kein Tracking. Dein Profil bleibt in diesem Browser und lässt sich mit einem Klick löschen.",
-  "home.trust.2": "Läuft mit Gemma 4, einem offenen Modell, direkt auf diesem Computer über Ollama. Deine Antworten verlassen nie das Gerät.",
+  "home.trust.2": "Läuft mit Gemma 4, Googles offenem Modell, lokal über Ollama oder gehostet. Deine Antworten werden für eine Antwort genutzt und nie gespeichert.",
   "home.trust.3": "Sieben Sprachen, darunter Gaeilge, Polski und Українська, für die Menschen, die Irland am Laufen halten.",
   "home.trust.4": "Jeder Kurs- und Nachrichtenlink ist echt und geprüft. Die KI darf keine URLs erfinden.",
   "home.final": "Neunzig Sekunden zu einem klareren nächsten Schritt.",

@@ -37,7 +37,7 @@
   "demo.open": "Open this pulse",
   "home.trust.title": "Private by design. Open by default.",
   "home.trust.1": "No account and no tracking. Your profile stays in this browser, and you can delete it in one tap.",
-  "home.trust.2": "Runs on Gemma 4, an open-weight model, right on this computer through Ollama. Your answers never leave the machine.",
+  "home.trust.2": "Runs on Gemma 4, Google's open-weight model, locally through Ollama or hosted. Your answers are used for one reply and never stored.",
   "home.trust.3": "Seven languages, including Gaeilge, Polski and Українська, for the people who keep Ireland working.",
   "home.trust.4": "Every course and news link is real and checked. The AI is not allowed to invent URLs.",
   "home.final": "Ninety seconds to a clearer next step.",

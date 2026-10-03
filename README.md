@@ -18,6 +18,7 @@ AI anxiety is real, and it is not evenly spread. In Ireland, a big share of the 
 4. **Gap analysis.** It shows *what you already have* first, then *partly there*, then *to build*, with a realistic time estimate.
 5. **Bridge the gap.** You pick a goal date, and Droichead generates a phased, week-by-week strategy sized to your hours. It includes a portfolio project, and tasks link to real courses and certifications.
 6. **My plan.** This includes:
+   - a **printable wall planner**: an A4 goal poster, month-by-month calendars with every task day marked, and a week-by-week checklist
    - a timeline with checkboxes and progress
    - an **.ics export** for Google, Outlook or Apple Calendar
    - **job searches limited to the last 48 hours** (LinkedIn, Indeed)
@@ -28,12 +29,14 @@ The UI is available in **English, Gaeilge, Polski, Українська, Españo
 
 ## Open-source AI, running locally
 
-- **Open-weight model on your own machine.** Every AI call (roles, news commentary, gap analysis, plan, LinkedIn drafts) runs on **Google Gemma 4 12B** through a local [Ollama](https://ollama.com) server. The user's answers never leave the computer.
+- **Open-weight Gemma 4 everywhere.** Every AI call (roles, news commentary, gap analysis, plan, LinkedIn drafts) runs on Google's open-weight **Gemma 4**:
+  - **Hosted:** `gemma-4-26b-a4b-it` through Google AI Studio (set `GOOGLE_API_KEY`), with thinking set to minimal so a gap analysis takes about 4 seconds.
+  - **Fully local:** `gemma4:12b` through [Ollama](https://ollama.com) when no key is set. The user's answers never leave the computer.
 - **Provider-agnostic.** `lib/llm.ts` also speaks to any OpenAI-compatible endpoint that serves open-weight models, such as DigitalOcean Inference, Groq or vLLM. Set `LLM_PROVIDER=openai`, `LLM_BASE_URL`, `LLM_API_KEY` and `LLM_MODEL`.
 - **MIT licensed.**
 - **An Agent Skill** in [`skills/bridge-the-gap`](skills/bridge-the-gap/SKILL.md) packages the gap-analysis and planning method so any agent can run it.
 
-Measured on an Apple M5 laptop with Gemma 4 12B (Q4_K_M):
+Measured locally on an Apple M5 laptop with Gemma 4 12B (Q4_K_M). Hosted Gemma 4 26B-A4B is about 4 times faster (gap analysis in about 4 s, roles in about 9 s):
 
 | Call | Time |
 |---|---|

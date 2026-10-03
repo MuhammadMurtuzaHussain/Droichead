@@ -37,7 +37,7 @@
   "demo.open": "Otwórz ten puls",
   "home.trust.title": "Prywatny z założenia. Otwarty domyślnie.",
   "home.trust.1": "Bez konta i bez śledzenia. Twój profil zostaje w tej przeglądarce i możesz go usunąć jednym kliknięciem.",
-  "home.trust.2": "Działa na Gemma 4, otwartym modelu, bezpośrednio na tym komputerze przez Ollama. Twoje odpowiedzi nigdy nie opuszczają urządzenia.",
+  "home.trust.2": "Działa na Gemma 4, otwartym modelu Google, lokalnie przez Ollama lub w chmurze. Twoje odpowiedzi służą do jednej odpowiedzi i nigdy nie są zapisywane.",
   "home.trust.3": "Siedem języków, w tym Gaeilge, polski i Українська, dla ludzi, dzięki którym Irlandia działa.",
   "home.trust.4": "Każdy link do kursu i wiadomości jest prawdziwy i sprawdzony. AI nie może wymyślać adresów URL.",
   "home.final": "Dziewięćdziesiąt sekund do jaśniejszego kolejnego kroku.",
