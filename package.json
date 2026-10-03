@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:i18n": "node scripts/check-i18n.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
