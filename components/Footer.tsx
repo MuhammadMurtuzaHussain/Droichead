@@ -39,7 +39,7 @@ export function Footer() {
   const small = "inline-flex items-center gap-1.5 rounded-full border border-line px-3 h-8 text-xs font-medium hover:border-ink/40";
 
   return (
-    <footer className="mt-24 border-t border-line">
+    <footer className="print:hidden mt-24 border-t border-line">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid gap-8 md:grid-cols-12">
         <div className="md:col-span-5 space-y-3">
           <div className="flex items-center gap-2.5">

@@ -8,11 +8,16 @@ import { LOCALE_ENGLISH, type Locale } from "./types";
   - "openai": any OpenAI-compatible endpoint serving open-weight models
     (DigitalOcean Inference, Groq, Together, vLLM...). Set LLM_BASE_URL + LLM_API_KEY.
 */
+// Google AI Studio serves the open-weight Gemma family (native Gemini API, so thinking can be minimised).
+const GOOGLE_KEY = process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY ?? "";
 const API_KEY = process.env.LLM_API_KEY ?? process.env.DO_MODEL_KEY ?? "";
-const PROVIDER = (process.env.LLM_PROVIDER ?? (API_KEY ? "openai" : "ollama")) as "ollama" | "openai";
+type Provider = "ollama" | "openai" | "google";
+const PROVIDER = (process.env.LLM_PROVIDER ?? (GOOGLE_KEY ? "google" : API_KEY ? "openai" : "ollama")) as Provider;
 const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://localhost:11434";
 const BASE_URL = process.env.LLM_BASE_URL ?? "https://inference.do-ai.run/v1";
-export const MODEL = process.env.LLM_MODEL ?? (PROVIDER === "ollama" ? (process.env.OLLAMA_MODEL ?? "gemma4:12b") : (process.env.DO_MODEL ?? "llama3.3-70b-instruct"));
+export const MODEL =
+  process.env.LLM_MODEL ??
+  { ollama: process.env.OLLAMA_MODEL ?? "gemma4:12b", google: "gemma-4-26b-a4b-it", openai: process.env.DO_MODEL ?? "llama3.3-70b-instruct" }[PROVIDER];
 
 let client: OpenAI | null = null;
 function openai() {
@@ -20,7 +25,7 @@ function openai() {
   return client;
 }
 
-export const hasModel = () => PROVIDER === "ollama" || Boolean(API_KEY);
+export const hasModel = () => PROVIDER === "ollama" || (PROVIDER === "google" ? Boolean(GOOGLE_KEY) : Boolean(API_KEY));
 export const providerInfo = () => ({ provider: PROVIDER, model: MODEL });
 
 export function systemPrompt(locale: Locale) {
@@ -65,6 +70,25 @@ async function complete(messages: Msg[], maxTokens: number, temperature: number,
     if (!res.ok) throw new Error(`ollama ${res.status}: ${(await res.text()).slice(0, 200)}`);
     const j = (await res.json()) as { message?: { content?: string } };
     return j.message?.content ?? "";
+  }
+  if (PROVIDER === "google") {
+    // Gemma on Google's API has no system role: fold the system prompt into the first user turn.
+    const [sys, ...rest] = messages;
+    const turns = rest.map((m, i) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: i === 0 ? `${sys.content}\n\n${m.content}` : m.content }] }));
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
+      method: "POST",
+      signal: AbortSignal.any([signal, AbortSignal.timeout(90_000)]),
+      headers: { "content-type": "application/json", "x-goog-api-key": GOOGLE_KEY },
+      body: JSON.stringify({
+        contents: turns,
+        generationConfig: { temperature, maxOutputTokens: maxTokens, thinkingConfig: { thinkingLevel: "minimal" } },
+      }),
+    }).catch((e) => {
+      throw new Error(`google fetch: ${e?.name} ${e?.message} ${e?.cause?.code ?? ""} ${e?.cause?.message ?? ""}`);
+    });
+    if (!res.ok) throw new Error(`google ${res.status}: ${(await res.text()).slice(0, 200)}`);
+    const j = (await res.json()) as { candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[] };
+    return (j.candidates?.[0]?.content?.parts ?? []).filter((p) => !p.thought).map((p) => p.text ?? "").join("");
   }
   const res = await openai().chat.completions.create({ model: MODEL, messages, max_tokens: maxTokens, temperature }, { signal });
   return res.choices[0]?.message?.content ?? "";

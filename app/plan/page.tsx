@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { motion } from "motion/react";
-import { ArrowRight, ArrowUpRight, Briefcase, CalendarPlus, Check, Clock, Copy, Hammer, LinkedinLogo, MapPin, Sparkle, Trash } from "@phosphor-icons/react";
+import { ArrowRight, ArrowUpRight, Briefcase, CalendarPlus, Check, Clock, Copy, Hammer, LinkedinLogo, MapPin, Printer, Sparkle, Trash } from "@phosphor-icons/react";
 import { RESOURCE_BY_ID } from "@/data/resources";
 import { db } from "@/lib/db";
 import { postJSON, profileForApi } from "@/lib/api";
@@ -28,7 +28,7 @@ export default function PlanPage() {
   const plan = plans.find((p) => p.id === selected) ?? plans[0];
   if (!plan || !profile)
     return (
-      <div className="pt-16 max-w-xl space-y-6">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pt-36 max-w-xl space-y-6">
         <h1 className="text-3xl font-semibold">{t("pl.none")}</h1>
         <Link href="/pulse" className="btn btn-primary">
           {t("nav.pulse")} <ArrowRight size={16} weight="bold" />
@@ -50,8 +50,8 @@ function PlanView({ plan, plans, profile, tab, setTab, onSelect }: { plan: Plan;
   }
 
   return (
-    <div className="pt-8 sm:pt-12 space-y-10">
-      <header className="rounded-[20px] bg-deep text-on-deep p-7 sm:p-10 space-y-8">
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 space-y-10">
+      <header className="rounded-[28px] core-brand !rounded-[28px] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)] text-on-deep p-7 sm:p-10 space-y-8">
         <div className="flex flex-wrap items-start gap-6">
           <div className="flex-1 min-w-[260px] space-y-3">
             <p className="text-sm text-on-deep/70">{t("pl.goal", { date: formatDate(plan.goalDate, { day: "numeric", month: "long", year: "numeric" }) })}</p>
@@ -67,6 +67,9 @@ function PlanView({ plan, plans, profile, tab, setTab, onSelect }: { plan: Plan;
                 ))}
               </select>
             )}
+            <Link href={`/plan/print?id=${encodeURIComponent(plan.id)}`} className="btn btn-quiet">
+              <Printer size={18} /> {t("pl.print")}
+            </Link>
             <button className="btn btn-on-deep" onClick={() => downloadIcs(plan)}>
               <CalendarPlus size={18} /> {t("pl.export")}
             </button>
@@ -160,7 +163,7 @@ function PlanView({ plan, plans, profile, tab, setTab, onSelect }: { plan: Plan;
               </ol>
             </div>
             <aside className="lg:col-span-4 space-y-6">
-              <section className="rounded-[20px] bg-brand-soft p-6 space-y-3 lg:sticky lg:top-24">
+              <section className="rounded-[22px] bg-brand-soft p-6 space-y-3 lg:sticky lg:top-24">
                 <h2 className="font-semibold flex items-center gap-2">
                   <Hammer size={20} className="text-brand" /> {t("pl.project")}
                 </h2>
@@ -194,7 +197,7 @@ function Resources({ plan }: { plan: Plan }) {
   return (
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {list.map((r, i) => (
-        <a key={r.id} href={r.url} target="_blank" rel="noopener noreferrer" className={`group rounded-[20px] p-6 flex flex-col gap-4 transition-colors ${i === 0 ? "sm:col-span-2 lg:col-span-1 lg:row-span-2 bg-deep text-on-deep" : "panel hover:border-brand"}`}>
+        <a key={r.id} href={r.url} target="_blank" rel="noopener noreferrer" className={`group rounded-[22px] p-6 flex flex-col gap-4 transition-colors ${i === 0 ? "sm:col-span-2 lg:col-span-1 lg:row-span-2 core-brand !rounded-[22px] text-on-deep" : "panel hover:border-brand"}`}>
           <div className="flex flex-wrap gap-1.5 text-xs font-medium">
             <span className={`rounded-full px-2.5 py-1 ${i === 0 ? "bg-on-deep/10" : r.cost === "free" ? "bg-brand-soft" : r.cost === "funded" ? "bg-gorse-soft" : "bg-surface-2"}`}>{t(`res.${r.cost}`)}</span>
             <span className={`rounded-full px-2.5 py-1 font-mono ${i === 0 ? "bg-on-deep/10" : "bg-surface-2"}`}>{t("res.hours", { n: r.hours })}</span>

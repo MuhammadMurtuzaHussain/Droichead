@@ -1,53 +1,30 @@
 @import "tailwindcss";
 
 /*
-  Droichead design tokens.
-  Palette: Forest family (limestone, emerald, Atlantic dark green) with two
-  semantic tints only: gorse (partly there) and peat (to build).
-  Shape system: interactive = full pill, surfaces + images = 20px, inputs = 14px.
+  Droichead, "Atlantic night".
+  One theme (dark), one accent (emerald). Gorse and peat are semantic tints only
+  (partly there / to build). Shape system: interactive = full pill,
+  bezel shells = 28px with 22px cores, fields = 14px.
 */
 :root {
-  --bg: #f3f5f2;
-  --surface: #fbfcfb;
-  --surface-2: #e8eee9;
-  --ink: #10201a;
-  --muted: #55625c;
-  --line: #d9e1db;
-  --brand: #0a6b4d;
-  --brand-strong: #075a40;
-  --brand-soft: #dbeae2;
-  --on-brand: #f6fbf8;
-  --deep: #0d2a21;
-  --on-deep: #e9f2ed;
-  --gorse: #a87a0c;
-  --gorse-soft: #f6ecd2;
-  --peat: #94452e;
-  --peat-soft: #f4e3db;
-  --shadow: 16 50 38;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0b1411;
-    --surface: #111c18;
-    --surface-2: #172520;
-    --ink: #e5ede8;
-    --muted: #98a8a0;
-    --line: #22322b;
-    --brand: #45c595;
-    --brand-strong: #5ad3a6;
-    --brand-soft: #12302a;
-    --on-brand: #05140e;
-    --deep: #0f241d;
-    --on-deep: #e5ede8;
-    --gorse: #e3b545;
-    --gorse-soft: #2f2711;
-    --peat: #e39478;
-    --peat-soft: #35201a;
-    --shadow: 0 0 0;
-    color-scheme: dark;
-  }
+  --bg: #07110e;
+  --surface: #0c1814;
+  --surface-2: #11201b;
+  --ink: #e8f0eb;
+  --muted: #92a49b;
+  --line: #1b2c25;
+  --brand: #52d3a2;
+  --brand-strong: #74e2b8;
+  --brand-soft: #0f2c24;
+  --on-brand: #03110b;
+  --deep: #0a1c16;
+  --on-deep: #e8f0eb;
+  --gorse: #efc65c;
+  --gorse-soft: #2a2312;
+  --peat: #f0a184;
+  --peat-soft: #2d1b15;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -69,12 +46,12 @@
   --color-peat-soft: var(--peat-soft);
   --font-sans: var(--font-geist), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --radius-panel: 20px;
-  --radius-field: 14px;
+  --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 html {
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -87,7 +64,7 @@ body {
 h1,
 h2,
 h3 {
-  letter-spacing: -0.025em;
+  letter-spacing: -0.035em;
   text-wrap: balance;
 }
 
@@ -96,7 +73,7 @@ p {
 }
 
 ::selection {
-  background: var(--brand-soft);
+  background: color-mix(in oklab, var(--brand) 35%, transparent);
 }
 
 :focus-visible {
@@ -104,98 +81,224 @@ p {
   outline-offset: 3px;
 }
 
-/* Buttons: full pill, one line, tactile */
+/* Ambient light + grain: fixed, non-interactive layers behind everything */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(55% 45% at 12% -5%, rgb(82 211 162 / 0.16), transparent 70%),
+    radial-gradient(35% 35% at 95% 8%, rgb(239 198 92 / 0.07), transparent 70%),
+    radial-gradient(50% 40% at 70% 110%, rgb(82 211 162 / 0.08), transparent 70%),
+    var(--bg);
+}
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Double-bezel: a machined tray (shell) holding a glass plate (core) */
+.bezel {
+  border-radius: 28px;
+  padding: 6px;
+  background: rgb(255 255 255 / 0.025);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+.core {
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.045), rgb(255 255 255 / 0.012)), var(--surface);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    0 40px 80px -40px rgb(0 0 0 / 0.7);
+}
+.core-brand {
+  border-radius: 22px;
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgb(82 211 162 / 0.22), transparent 60%),
+    linear-gradient(180deg, rgb(255 255 255 / 0.04), transparent), #0b211a;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.09);
+}
+
+/* Spotlight that follows the cursor (set --mx/--my on the element) */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease);
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgb(82 211 162 / 0.14), transparent 45%);
+}
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Island buttons: pill with a nested trailing orb */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   white-space: nowrap;
   border-radius: 999px;
-  padding: 0.75rem 1.35rem;
+  padding: 0.8rem 1.4rem;
   font-weight: 600;
   font-size: 0.95rem;
   line-height: 1;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.5s var(--ease),
+    background-color 0.4s var(--ease),
+    border-color 0.4s var(--ease),
+    color 0.4s var(--ease),
+    box-shadow 0.5s var(--ease);
 }
 .btn:active {
-  transform: translateY(1px) scale(0.985);
+  transform: scale(0.98);
 }
 .btn:disabled {
   opacity: 0.45;
   pointer-events: none;
 }
+.btn-island {
+  padding: 0.4rem 0.4rem 0.4rem 1.4rem;
+}
+.btn-orb {
+  display: grid;
+  place-items: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.14);
+  transition: transform 0.5s var(--ease);
+}
+.btn:hover .btn-orb {
+  transform: translate(3px, -1px) scale(1.06);
+}
 .btn-primary {
   background: var(--brand);
   color: var(--on-brand);
+  box-shadow: 0 10px 40px -12px rgb(82 211 162 / 0.55), inset 0 1px 0 rgb(255 255 255 / 0.35);
 }
 .btn-primary:hover {
   background: var(--brand-strong);
+  box-shadow: 0 14px 50px -12px rgb(82 211 162 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.4);
 }
 .btn-quiet {
-  background: transparent;
+  background: rgb(255 255 255 / 0.04);
   color: var(--ink);
-  border: 1px solid var(--line);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
 }
 .btn-quiet:hover {
-  border-color: var(--ink);
+  background: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+}
+.btn-quiet .btn-orb {
+  background: rgb(255 255 255 / 0.08);
 }
 .btn-on-deep {
-  background: var(--on-deep);
-  color: var(--deep);
+  background: var(--ink);
+  color: var(--bg);
 }
 .btn-on-deep:hover {
   background: #fff;
+}
+
+.pill-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.09);
+  color: var(--muted);
 }
 
 /* Selectable option tiles and pills */
 .option {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  border: 1px solid var(--line);
-  background: var(--surface);
+  gap: 0.65rem;
+  background: rgb(255 255 255 / 0.03);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
   color: var(--ink);
   font-weight: 500;
-  transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    box-shadow 0.4s var(--ease),
+    background-color 0.4s var(--ease),
+    transform 0.4s var(--ease);
 }
 .option:hover {
-  border-color: color-mix(in oklab, var(--brand) 55%, var(--line));
+  background: rgb(255 255 255 / 0.06);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+  transform: translateY(-1px);
 }
 .option:active {
   transform: scale(0.985);
 }
 .option[aria-pressed="true"] {
-  border-color: var(--brand);
-  background: var(--brand-soft);
+  background: color-mix(in oklab, var(--brand) 14%, transparent);
+  box-shadow:
+    inset 0 0 0 1px var(--brand),
+    0 10px 30px -14px rgb(82 211 162 / 0.6);
 }
 
 .field {
   width: 100%;
-  border-radius: var(--radius-field);
-  border: 1px solid var(--line);
-  background: var(--surface);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.035);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.09);
   color: var(--ink);
-  padding: 0.8rem 1rem;
+  padding: 0.85rem 1rem;
   outline: none;
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  transition: box-shadow 0.3s var(--ease);
 }
 .field::placeholder {
-  color: color-mix(in oklab, var(--muted) 85%, transparent);
+  color: color-mix(in oklab, var(--muted) 75%, transparent);
 }
 .field:focus {
-  border-color: var(--brand);
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--brand) 18%, transparent);
+  box-shadow:
+    inset 0 0 0 1px var(--brand),
+    0 0 0 4px rgb(82 211 162 / 0.15);
 }
 
+/* Legacy surface used by app pages: render as a glass plate */
 .panel {
-  border-radius: var(--radius-panel);
-  background: var(--surface);
-  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.012)), var(--surface);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+  transition: box-shadow 0.4s var(--ease), transform 0.4s var(--ease);
+}
+a.panel:hover,
+button.panel:hover {
+  box-shadow:
+    inset 0 0 0 1px rgb(82 211 162 / 0.45),
+    0 20px 50px -30px rgb(82 211 162 / 0.5);
+}
+.lift {
+  box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.75);
 }
 
-.lift {
-  box-shadow: 0 1px 0 rgb(var(--shadow) / 0.04), 0 24px 48px -28px rgb(var(--shadow) / 0.28);
+.text-gradient {
+  background: linear-gradient(100deg, var(--brand-strong), #b9f0d8 60%, var(--gorse));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 @keyframes shimmer {
@@ -208,16 +311,52 @@ p {
 }
 .skeleton {
   border-radius: 10px;
-  background: linear-gradient(90deg, var(--surface-2) 0%, var(--line) 50%, var(--surface-2) 100%);
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.03) 0%, rgb(255 255 255 / 0.08) 50%, rgb(255 255 255 / 0.03) 100%);
   background-size: 200% 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
+  animation: shimmer 1.8s var(--ease) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Printable wall planner */
+@page {
+  size: A4;
+  margin: 11mm;
+}
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    color: #10201a !important;
+  }
+  .ambient,
+  .grain {
+    display: none !important;
+  }
+  .sheet {
+    box-shadow: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    break-after: page;
+    width: auto !important;
+    min-height: auto !important;
+    padding: 0 !important;
+  }
+  .sheet:last-child {
+    break-after: auto;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }

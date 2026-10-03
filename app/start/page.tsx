@@ -279,7 +279,7 @@ export default function Survey() {
   const FeelingIcon = FEELINGS[d.aiFeeling - 1];
 
   return (
-    <div className="max-w-5xl mx-auto pt-8 sm:pt-14 min-h-[70dvh]">
+    <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 sm:pt-36 min-h-[80dvh]">
       {/* Segmented progress */}
       <div className="flex items-center gap-4 mb-10">
         <div className="flex-1 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))` }} aria-hidden>

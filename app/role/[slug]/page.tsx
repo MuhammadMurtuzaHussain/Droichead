@@ -23,7 +23,7 @@ function GapColumn({ title, items, tone, icon: I, delay }: { title: string; item
   const bg = { brand: "bg-brand-soft", gorse: "bg-gorse-soft", peat: "bg-peat-soft" }[tone];
   const fg = { brand: "text-brand", gorse: "text-gorse", peat: "text-peat" }[tone];
   return (
-    <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease, delay }} className={`rounded-[20px] ${bg} p-6 space-y-4`}>
+    <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease, delay }} className={`rounded-[22px] ${bg} p-6 space-y-4`}>
       <h3 className={`font-semibold flex items-center gap-2 ${fg}`}>
         <I size={20} weight="fill" /> {title}
       </h3>
@@ -106,7 +106,7 @@ export default function RolePage() {
   if (!role || !profile) return null;
 
   return (
-    <div className="pt-8 sm:pt-12 space-y-14">
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 space-y-16">
       <div className="space-y-6">
         <Link href="/pulse" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink">
           <ArrowLeft size={16} /> {t("r.back")}
@@ -148,7 +148,7 @@ export default function RolePage() {
         {!gap && !gapError && (
           <div className="grid md:grid-cols-3 gap-4" aria-busy="true">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="rounded-[20px] bg-surface-2 p-6 space-y-3">
+              <div key={i} className="rounded-[22px] bg-surface-2 p-6 space-y-3">
                 <div className="skeleton h-5 w-1/2" />
                 <div className="skeleton h-4 w-full" />
                 <div className="skeleton h-4 w-4/5" />
@@ -180,7 +180,7 @@ export default function RolePage() {
         )}
       </section>
 
-      <motion.section initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, ease }} className="rounded-[20px] bg-deep text-on-deep p-7 sm:p-10 grid lg:grid-cols-12 gap-8 items-end">
+      <motion.section initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, ease }} className="rounded-[28px] core-brand !rounded-[28px] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)] text-on-deep p-7 sm:p-10 grid lg:grid-cols-12 gap-8 items-end">
         <div className="lg:col-span-6 space-y-3">
           <h2 className="text-3xl sm:text-4xl font-semibold">{t("r.cta")}</h2>
           <p className="text-on-deep/75 text-lg max-w-[42ch]">{t("b.sub")}</p>

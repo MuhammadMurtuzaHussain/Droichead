@@ -90,7 +90,7 @@ export default function PulsePage() {
   const [top, ...rest] = pulse?.roles ?? [];
 
   return (
-    <div className="pt-8 sm:pt-12 space-y-14">
+    <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 space-y-16">
       <header className="space-y-4 max-w-3xl">
         <h1 className="text-4xl sm:text-5xl font-semibold leading-[1.05]">{profile.name ? t("p.hello", { name: profile.name }) : t("p.hello.anon")}</h1>
         <p className="text-lg text-muted flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -125,7 +125,7 @@ export default function PulsePage() {
 
         {!pulse?.roles.length && !error && (
           <div className="grid lg:grid-cols-12 gap-4" aria-busy="true" aria-label={t("p.loading")}>
-            <div className="lg:col-span-7 rounded-[20px] bg-surface-2 p-8 space-y-4">
+            <div className="lg:col-span-7 rounded-[22px] bg-surface-2 p-8 space-y-4">
               <div className="skeleton h-4 w-32" />
               <div className="skeleton h-9 w-3/4" />
               <div className="skeleton h-4 w-full" />
@@ -146,7 +146,7 @@ export default function PulsePage() {
         {top && (
           <div className="grid lg:grid-cols-12 gap-4">
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }} className="lg:col-span-7">
-              <Link href={`/role/${encodeURIComponent(top.slug)}`} className="group block h-full rounded-[20px] bg-deep text-on-deep p-7 sm:p-9">
+              <Link href={`/role/${encodeURIComponent(top.slug)}`} className="group block h-full rounded-[28px] core-brand !rounded-[28px] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)] text-on-deep p-7 sm:p-9">
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-sm text-on-deep/70">{t("p.top")}</span>
                   <span className="font-mono text-sm">
@@ -237,7 +237,7 @@ export default function PulsePage() {
               ))}
             </ul>
           </section>
-          <section className="rounded-[20px] bg-surface-2 p-6 space-y-3">
+          <section className="rounded-[22px] bg-surface-2 p-6 space-y-3">
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <CloudSun size={22} className="text-brand" /> {t("p.economy")}
             </h2>
