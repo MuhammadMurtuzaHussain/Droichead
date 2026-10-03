@@ -200,7 +200,7 @@ function PlanView({ plan, plans, profile, tab, setTab, onSelect }: { plan: Plan;
                 const todo = plan.tasks.filter((x) => x.phaseIndex === pi && !x.done).map((x) => x.title);
                 return ph ? <ListenButton text={`${t("pl.towards", { role: plan.roleTitle })}. ${ph.name}: ${ph.goal}. ${todo.join(". ")}.`} /> : null;
               })()}
-              <section className="rounded-[22px] bg-brand-soft p-6 space-y-3 lg:sticky lg:top-24">
+              <section className="rounded-[22px] bg-brand-soft p-6 space-y-3">
                 <h2 className="font-semibold flex items-center gap-2">
                   <Hammer size={20} className="text-brand" /> {t("pl.project")}
                 </h2>

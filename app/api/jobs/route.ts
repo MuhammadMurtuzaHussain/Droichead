@@ -40,17 +40,23 @@ function score(target: string[], title: string) {
   return s;
 }
 
+// Arbeitnow pages are ~3.5 MB (too big for Next's data cache), so keep the parsed list in memory briefly.
+let arbeitnowCache: { at: number; jobs: Job[] } | null = null;
+
 async function arbeitnow(): Promise<Job[]> {
+  if (arbeitnowCache && Date.now() - arbeitnowCache.at < 15 * 60 * 1000) return arbeitnowCache.jobs;
   const pages = await Promise.allSettled(
     [1, 2, 3].map((p) =>
-      fetch(`https://www.arbeitnow.com/api/job-board-api?page=${p}`, { signal: AbortSignal.timeout(7000), next: { revalidate: 900 } }).then((r) => r.json() as Promise<{ data: { title: string; company_name: string; location: string; url: string; created_at: number; remote: boolean }[] }>),
+      fetch(`https://www.arbeitnow.com/api/job-board-api?page=${p}`, { signal: AbortSignal.timeout(7000), cache: "no-store" }).then((r) => r.json() as Promise<{ data: { title: string; company_name: string; location: string; url: string; created_at: number; remote: boolean }[] }>),
     ),
   );
-  return pages.flatMap((p) =>
+  const jobs = pages.flatMap((p) =>
     p.status === "fulfilled"
       ? p.value.data.map((j) => ({ title: j.title, company: j.company_name, location: j.location, url: j.url, postedAt: j.created_at * 1000, source: "Arbeitnow" as const, remote: j.remote }))
       : [],
   );
+  if (jobs.length) arbeitnowCache = { at: Date.now(), jobs };
+  return jobs;
 }
 
 async function remotive(role: string): Promise<Job[]> {
